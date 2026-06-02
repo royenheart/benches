@@ -1,0 +1,40 @@
+{
+  "detailed-message": "Point 0:\n  msg: time 11.37 exceeded zero score time 9.8\nPoint 1:\n  msg: time 61.46 exceeded zero score time 53\n",
+  "done": true,
+  "message": "Time Limit Exceeded",
+  "score": 0,
+  "subtasks": [
+    {
+      "detailed-message": "time 11.37 exceeded zero score time 9.8",
+      "max-score": 80,
+      "memory": 1052784,
+      "message": "Time Limit Exceeded",
+      "score": 0,
+      "time": 0
+    },
+    {
+      "detailed-message": "time 61.46 exceeded zero score time 53",
+      "max-score": 120,
+      "memory": 4198672,
+      "message": "Time Limit Exceeded",
+      "score": 0,
+      "time": 0
+    }
+  ]
+}
+
+100 322231 123123 12323
+15804545747618127858
+
+123123123 21312312 213132 213123
+11891702118275047226
+
+9476945384 79834795837 87734759375 65535
+
+# substacks0
+9476945384 79834795837 87734759375 130000000
+time ./answer < datas/3
+
+# substacks1
+9476945384 79834795837 87734759375 530000000
+time ./answer < datas/4

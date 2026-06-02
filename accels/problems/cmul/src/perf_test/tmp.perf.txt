@@ -1,0 +1,385 @@
+dynamic, 64
+, N1: 10, N2: 10, N3: 10
+        12,722,971      stalled-cycles-frontend   #    8.02% frontend cycles idle     (16.27%)
+        54,334,706      stalled-cycles-backend    #   34.26% backend cycles idle      (28.14%)
+           302,969      branch-misses             #    1.18% of all branches          (59.79%)
+           686,590      L1-dcache-load-misses     #    1.98% of all L1-dcache accesses  (59.56%)
+   <not supported>      LLC-load-misses                                             
+           312,221      L1-icache-load-misses     #    2.02% of all L1-icache accesses  (47.49%)
+            79,849      dTLB-load-misses          #   25.11% of all dTLB cache accesses  (24.35%)
+            49,020      iTLB-load-misses          #   65.48% of all iTLB cache accesses  (1.85%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 64
+, N1: 10240, N2: 10, N3: 10
+       112,512,679      stalled-cycles-frontend   #    4.02% frontend cycles idle     (34.41%)
+       454,419,640      stalled-cycles-backend    #   16.23% backend cycles idle      (36.00%)
+         8,452,912      branch-misses             #    1.25% of all branches          (35.29%)
+        41,559,580      L1-dcache-load-misses     #    2.75% of all L1-dcache accesses  (32.11%)
+   <not supported>      LLC-load-misses                                             
+        13,505,797      L1-icache-load-misses     #    2.15% of all L1-icache accesses  (31.91%)
+           417,553      dTLB-load-misses          #    1.94% of all dTLB cache accesses  (31.90%)
+           106,859      iTLB-load-misses          #    3.47% of all iTLB cache accesses  (31.91%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 64
+, N1: 10, N2: 10240, N3: 10
+        19,499,500      stalled-cycles-frontend   #    1.53% frontend cycles idle     (37.64%)
+       239,128,705      stalled-cycles-backend    #   18.71% backend cycles idle      (40.08%)
+         1,166,833      branch-misses             #    0.14% of all branches          (38.52%)
+         2,418,977      L1-dcache-load-misses     #    0.39% of all L1-dcache accesses  (30.62%)
+   <not supported>      LLC-load-misses                                             
+           418,064      L1-icache-load-misses     #    1.78% of all L1-icache accesses  (29.41%)
+            64,305      dTLB-load-misses          #   24.65% of all dTLB cache accesses  (29.38%)
+            21,699      iTLB-load-misses          #  142.46% of all iTLB cache accesses  (29.41%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 64
+, N1: 10, N2: 100, N3: 10240
+       113,057,746      stalled-cycles-frontend   #    2.31% frontend cycles idle     (30.17%)
+     1,388,712,055      stalled-cycles-backend    #   28.43% backend cycles idle      (31.57%)
+         8,237,718      branch-misses             #    0.64% of all branches          (35.33%)
+        46,982,692      L1-dcache-load-misses     #    2.38% of all L1-dcache accesses  (35.31%)
+   <not supported>      LLC-load-misses                                             
+        15,101,940      L1-icache-load-misses     #    2.12% of all L1-icache accesses  (35.19%)
+           485,350      dTLB-load-misses          #    2.32% of all dTLB cache accesses  (34.53%)
+            89,242      iTLB-load-misses          #    5.40% of all iTLB cache accesses  (31.72%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 64
+, N1: 1024, N2: 64, N3: 1024
+     1,578,472,589      stalled-cycles-frontend   #    3.67% frontend cycles idle     (33.05%)
+    11,410,474,957      stalled-cycles-backend    #   26.53% backend cycles idle      (33.22%)
+        93,074,752      branch-misses             #    0.50% of all branches          (33.65%)
+       299,270,297      L1-dcache-load-misses     #    0.77% of all L1-dcache accesses  (33.65%)
+   <not supported>      LLC-load-misses                                             
+       200,591,554      L1-icache-load-misses     #    2.61% of all L1-icache accesses  (33.56%)
+         6,339,162      dTLB-load-misses          #    3.38% of all dTLB cache accesses  (33.29%)
+         1,253,175      iTLB-load-misses          #   42.75% of all iTLB cache accesses  (32.97%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 128
+, N1: 10, N2: 10, N3: 10
+       151,335,777      stalled-cycles-frontend   #    5.44% frontend cycles idle     (29.40%)
+       480,120,912      stalled-cycles-backend    #   17.26% backend cycles idle      (34.01%)
+         3,663,788      branch-misses             #    0.49% of all branches          (45.29%)
+        17,481,713      L1-dcache-load-misses     #    2.22% of all L1-dcache accesses  (40.26%)
+   <not supported>      LLC-load-misses                                             
+         1,251,125      L1-icache-load-misses     #    0.74% of all L1-icache accesses  (33.84%)
+         4,740,167      dTLB-load-misses          #   33.73% of all dTLB cache accesses  (27.39%)
+           118,600      iTLB-load-misses          #   30.85% of all iTLB cache accesses  (24.44%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 128
+, N1: 10240, N2: 10, N3: 10
+       114,474,156      stalled-cycles-frontend   #    2.81% frontend cycles idle     (30.98%)
+       616,292,906      stalled-cycles-backend    #   15.11% backend cycles idle      (31.05%)
+         7,838,422      branch-misses             #    0.54% of all branches          (34.49%)
+        22,570,330      L1-dcache-load-misses     #    0.87% of all L1-dcache accesses  (34.54%)
+   <not supported>      LLC-load-misses                                             
+        18,000,122      L1-icache-load-misses     #    2.58% of all L1-icache accesses  (34.54%)
+         1,019,981      dTLB-load-misses          #    5.19% of all dTLB cache accesses  (34.55%)
+            91,251      iTLB-load-misses          #   17.90% of all iTLB cache accesses  (33.57%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 128
+, N1: 10, N2: 10240, N3: 10
+        14,416,850      stalled-cycles-frontend   #    0.85% frontend cycles idle     (33.95%)
+       193,278,465      stalled-cycles-backend    #   11.40% backend cycles idle      (37.07%)
+         1,638,702      branch-misses             #    0.15% of all branches          (42.66%)
+         2,797,060      L1-dcache-load-misses     #    0.29% of all L1-dcache accesses  (35.31%)
+   <not supported>      LLC-load-misses                                             
+           951,255      L1-icache-load-misses     #    1.21% of all L1-icache accesses  (29.70%)
+            79,393      dTLB-load-misses          #   12.51% of all dTLB cache accesses  (27.65%)
+            30,766      iTLB-load-misses          #   66.02% of all iTLB cache accesses  (27.66%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 128
+, N1: 10, N2: 100, N3: 10240
+       121,443,097      stalled-cycles-frontend   #    2.36% frontend cycles idle     (30.16%)
+     1,416,478,543      stalled-cycles-backend    #   27.58% backend cycles idle      (31.55%)
+        11,600,830      branch-misses             #    0.53% of all branches          (35.35%)
+        25,832,908      L1-dcache-load-misses     #    0.62% of all L1-dcache accesses  (35.30%)
+   <not supported>      LLC-load-misses                                             
+        18,979,987      L1-icache-load-misses     #    2.57% of all L1-icache accesses  (35.32%)
+           521,685      dTLB-load-misses          #    2.52% of all dTLB cache accesses  (34.55%)
+           105,541      iTLB-load-misses          #   20.34% of all iTLB cache accesses  (31.70%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 128
+, N1: 1024, N2: 64, N3: 1024
+     3,386,173,955      stalled-cycles-frontend   #    5.74% frontend cycles idle     (33.01%)
+    13,506,072,335      stalled-cycles-backend    #   22.91% backend cycles idle      (33.11%)
+       132,914,907      branch-misses             #    0.63% of all branches          (33.50%)
+       567,894,242      L1-dcache-load-misses     #    1.35% of all L1-dcache accesses  (33.50%)
+   <not supported>      LLC-load-misses                                             
+       224,310,424      L1-icache-load-misses     #    2.27% of all L1-icache accesses  (33.50%)
+        13,913,917      dTLB-load-misses          #    5.56% of all dTLB cache accesses  (33.49%)
+         2,470,862      iTLB-load-misses          #   19.19% of all iTLB cache accesses  (33.25%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 256
+, N1: 10, N2: 10, N3: 10
+       147,231,096      stalled-cycles-frontend   #    5.91% frontend cycles idle     (31.09%)
+       440,974,858      stalled-cycles-backend    #   17.69% backend cycles idle      (32.49%)
+         5,132,619      branch-misses             #    1.05% of all branches          (37.45%)
+        26,334,616      L1-dcache-load-misses     #    3.96% of all L1-dcache accesses  (33.94%)
+   <not supported>      LLC-load-misses                                             
+           870,096      L1-icache-load-misses     #    0.61% of all L1-icache accesses  (33.58%)
+         3,881,245      dTLB-load-misses          #   37.03% of all dTLB cache accesses  (33.59%)
+            40,008      iTLB-load-misses          #   41.24% of all iTLB cache accesses  (33.44%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 256
+, N1: 10240, N2: 10, N3: 10
+       198,450,496      stalled-cycles-frontend   #    5.33% frontend cycles idle     (32.48%)
+       846,631,519      stalled-cycles-backend    #   22.73% backend cycles idle      (33.99%)
+         8,582,002      branch-misses             #    0.52% of all branches          (37.49%)
+        22,105,105      L1-dcache-load-misses     #    0.75% of all L1-dcache accesses  (35.80%)
+   <not supported>      LLC-load-misses                                             
+        21,155,702      L1-icache-load-misses     #    2.37% of all L1-icache accesses  (32.81%)
+           386,723      dTLB-load-misses          #    2.13% of all dTLB cache accesses  (30.55%)
+            87,301      iTLB-load-misses          #   39.56% of all iTLB cache accesses  (30.22%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 256
+, N1: 10, N2: 10240, N3: 10
+        22,301,013      stalled-cycles-frontend   #    1.46% frontend cycles idle     (32.17%)
+       145,222,528      stalled-cycles-backend    #    9.50% backend cycles idle      (32.34%)
+         1,154,139      branch-misses             #    0.39% of all branches          (34.56%)
+         1,837,564      L1-dcache-load-misses     #    0.32% of all L1-dcache accesses  (33.71%)
+   <not supported>      LLC-load-misses                                             
+           230,578      L1-icache-load-misses     #    0.37% of all L1-icache accesses  (33.72%)
+            92,301      dTLB-load-misses          #   22.25% of all dTLB cache accesses  (33.98%)
+            33,277      iTLB-load-misses          #   77.98% of all iTLB cache accesses  (34.01%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 256
+, N1: 10, N2: 100, N3: 10240
+       410,899,726      stalled-cycles-frontend   #    5.73% frontend cycles idle     (33.10%)
+     1,773,399,649      stalled-cycles-backend    #   24.72% backend cycles idle      (34.35%)
+        18,544,173      branch-misses             #    0.93% of all branches          (36.84%)
+        76,594,499      L1-dcache-load-misses     #    1.76% of all L1-dcache accesses  (34.44%)
+   <not supported>      LLC-load-misses                                             
+        22,397,379      L1-icache-load-misses     #    2.12% of all L1-icache accesses  (31.97%)
+         3,792,687      dTLB-load-misses          #   12.57% of all dTLB cache accesses  (31.22%)
+           215,588      iTLB-load-misses          #   52.61% of all iTLB cache accesses  (31.22%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 256
+, N1: 1024, N2: 64, N3: 1024
+     3,820,045,195      stalled-cycles-frontend   #    5.66% frontend cycles idle     (33.13%)
+    15,042,216,857      stalled-cycles-backend    #   22.28% backend cycles idle      (33.13%)
+       129,160,484      branch-misses             #    0.49% of all branches          (33.44%)
+       668,907,983      L1-dcache-load-misses     #    1.29% of all L1-dcache accesses  (33.44%)
+   <not supported>      LLC-load-misses                                             
+       246,756,523      L1-icache-load-misses     #    2.35% of all L1-icache accesses  (33.44%)
+        16,066,075      dTLB-load-misses          #    5.64% of all dTLB cache accesses  (33.44%)
+         3,939,888      iTLB-load-misses          #   16.33% of all iTLB cache accesses  (33.35%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 512
+, N1: 10, N2: 10, N3: 10
+        35,839,195      stalled-cycles-frontend   #    3.76% frontend cycles idle     (29.77%)
+       306,835,916      stalled-cycles-backend    #   32.16% backend cycles idle      (34.49%)
+         1,562,390      branch-misses             #    0.21% of all branches          (47.14%)
+         8,050,567      L1-dcache-load-misses     #    0.69% of all L1-dcache accesses  (41.60%)
+   <not supported>      LLC-load-misses                                             
+           534,938      L1-icache-load-misses     #    0.45% of all L1-icache accesses  (32.57%)
+           180,096      dTLB-load-misses          #   22.34% of all dTLB cache accesses  (24.84%)
+            80,280      iTLB-load-misses          #   72.96% of all iTLB cache accesses  (23.56%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 512
+, N1: 10240, N2: 10, N3: 10
+       242,341,690      stalled-cycles-frontend   #    5.40% frontend cycles idle     (32.20%)
+     1,063,646,380      stalled-cycles-backend    #   23.69% backend cycles idle      (33.07%)
+         9,428,754      branch-misses             #    0.40% of all branches          (34.86%)
+        35,125,424      L1-dcache-load-misses     #    0.84% of all L1-dcache accesses  (34.17%)
+   <not supported>      LLC-load-misses                                             
+        18,843,011      L1-icache-load-misses     #    2.48% of all L1-icache accesses  (33.81%)
+           552,167      dTLB-load-misses          #    2.87% of all dTLB cache accesses  (33.36%)
+           112,115      iTLB-load-misses          #   39.87% of all iTLB cache accesses  (32.18%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 512
+, N1: 10, N2: 10240, N3: 10
+        24,058,040      stalled-cycles-frontend   #    1.41% frontend cycles idle     (34.07%)
+       264,792,398      stalled-cycles-backend    #   15.50% backend cycles idle      (39.18%)
+         1,762,706      branch-misses             #    0.13% of all branches          (44.91%)
+         4,068,089      L1-dcache-load-misses     #    0.42% of all L1-dcache accesses  (34.52%)
+   <not supported>      LLC-load-misses                                             
+           749,287      L1-icache-load-misses     #    1.43% of all L1-icache accesses  (27.20%)
+           202,242      dTLB-load-misses          #   30.80% of all dTLB cache accesses  (26.32%)
+            37,574      iTLB-load-misses          #  169.34% of all iTLB cache accesses  (26.33%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 512
+, N1: 10, N2: 100, N3: 10240
+       474,876,888      stalled-cycles-frontend   #    5.43% frontend cycles idle     (33.58%)
+     1,351,568,755      stalled-cycles-backend    #   15.47% backend cycles idle      (34.00%)
+        15,063,092      branch-misses             #    0.58% of all branches          (34.06%)
+        61,061,819      L1-dcache-load-misses     #    1.24% of all L1-dcache accesses  (32.99%)
+   <not supported>      LLC-load-misses                                             
+        17,065,208      L1-icache-load-misses     #    1.77% of all L1-icache accesses  (33.01%)
+         4,360,318      dTLB-load-misses          #   14.07% of all dTLB cache accesses  (32.96%)
+           475,900      iTLB-load-misses          #   21.49% of all iTLB cache accesses  (32.96%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 512
+, N1: 1024, N2: 64, N3: 1024
+     1,801,999,779      stalled-cycles-frontend   #    3.91% frontend cycles idle     (33.10%)
+    10,131,933,182      stalled-cycles-backend    #   21.97% backend cycles idle      (33.24%)
+        91,495,296      branch-misses             #    0.50% of all branches          (33.60%)
+       370,727,151      L1-dcache-load-misses     #    0.96% of all L1-dcache accesses  (33.61%)
+   <not supported>      LLC-load-misses                                             
+       187,996,091      L1-icache-load-misses     #    2.25% of all L1-icache accesses  (33.52%)
+         5,791,624      dTLB-load-misses          #    2.87% of all dTLB cache accesses  (33.30%)
+         1,359,545      iTLB-load-misses          #   16.15% of all iTLB cache accesses  (33.01%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 1024
+, N1: 10, N2: 10, N3: 10
+        43,585,364      stalled-cycles-frontend   #    7.82% frontend cycles idle     (35.14%)
+       160,316,372      stalled-cycles-backend    #   28.75% backend cycles idle      (35.84%)
+         1,221,885      branch-misses             #    0.33% of all branches          (35.70%)
+         3,705,518      L1-dcache-load-misses     #    1.80% of all L1-dcache accesses  (32.08%)
+   <not supported>      LLC-load-misses                                             
+           567,270      L1-icache-load-misses     #    1.96% of all L1-icache accesses  (32.08%)
+           148,791      dTLB-load-misses          #   32.37% of all dTLB cache accesses  (32.08%)
+            65,578      iTLB-load-misses          #   33.80% of all iTLB cache accesses  (32.02%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 1024
+, N1: 10240, N2: 10, N3: 10
+       129,084,883      stalled-cycles-frontend   #    3.08% frontend cycles idle     (32.04%)
+       622,851,790      stalled-cycles-backend    #   14.85% backend cycles idle      (33.54%)
+         8,986,279      branch-misses             #    0.49% of all branches          (37.46%)
+        26,985,463      L1-dcache-load-misses     #    0.90% of all L1-dcache accesses  (36.12%)
+   <not supported>      LLC-load-misses                                             
+        20,541,695      L1-icache-load-misses     #    2.44% of all L1-icache accesses  (33.48%)
+           399,825      dTLB-load-misses          #    2.03% of all dTLB cache accesses  (30.95%)
+            76,809      iTLB-load-misses          #   47.65% of all iTLB cache accesses  (30.08%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 1024
+, N1: 10, N2: 10240, N3: 10
+        17,386,235      stalled-cycles-frontend   #    0.64% frontend cycles idle     (31.59%)
+       222,925,418      stalled-cycles-backend    #    8.21% backend cycles idle      (36.70%)
+         1,620,673      branch-misses             #    0.11% of all branches          (48.25%)
+         1,688,969      L1-dcache-load-misses     #    0.17% of all L1-dcache accesses  (39.18%)
+   <not supported>      LLC-load-misses                                             
+           480,240      L1-icache-load-misses     #    1.27% of all L1-icache accesses  (29.44%)
+            79,802      dTLB-load-misses          #   20.61% of all dTLB cache accesses  (24.31%)
+            16,012      iTLB-load-misses          #   85.15% of all iTLB cache accesses  (24.35%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 1024
+, N1: 10, N2: 100, N3: 10240
+       323,219,893      stalled-cycles-frontend   #    4.67% frontend cycles idle     (32.48%)
+     1,426,259,605      stalled-cycles-backend    #   20.62% backend cycles idle      (33.71%)
+        15,595,037      branch-misses             #    0.76% of all branches          (36.62%)
+        67,537,870      L1-dcache-load-misses     #    1.49% of all L1-dcache accesses  (35.61%)
+   <not supported>      LLC-load-misses                                             
+        21,348,747      L1-icache-load-misses     #    1.86% of all L1-icache accesses  (33.32%)
+         3,093,226      dTLB-load-misses          #   10.69% of all dTLB cache accesses  (31.17%)
+           198,910      iTLB-load-misses          #   18.41% of all iTLB cache accesses  (30.49%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 1024
+, N1: 1024, N2: 64, N3: 1024
+     2,704,010,002      stalled-cycles-frontend   #    4.71% frontend cycles idle     (33.35%)
+    11,874,874,022      stalled-cycles-backend    #   20.69% backend cycles idle      (33.41%)
+       131,597,253      branch-misses             #    0.66% of all branches          (33.51%)
+       767,705,707      L1-dcache-load-misses     #    1.87% of all L1-dcache accesses  (33.35%)
+   <not supported>      LLC-load-misses                                             
+       256,025,315      L1-icache-load-misses     #    2.44% of all L1-icache accesses  (33.27%)
+        12,819,115      dTLB-load-misses          #    3.92% of all dTLB cache accesses  (33.24%)
+         6,995,144      iTLB-load-misses          #   14.92% of all iTLB cache accesses  (33.24%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 2048
+, N1: 10, N2: 10, N3: 10
+        12,636,241      stalled-cycles-frontend   #    1.63% frontend cycles idle     (30.18%)
+       152,834,341      stalled-cycles-backend    #   19.75% backend cycles idle      (30.19%)
+           620,233      branch-misses             #    0.15% of all branches          (34.92%)
+         3,250,711      L1-dcache-load-misses     #    0.42% of all L1-dcache accesses  (34.92%)
+   <not supported>      LLC-load-misses                                             
+           462,144      L1-icache-load-misses     #    2.34% of all L1-icache accesses  (34.93%)
+           117,780      dTLB-load-misses          #   20.57% of all dTLB cache accesses  (34.93%)
+            42,479      iTLB-load-misses          #   19.80% of all iTLB cache accesses  (34.93%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 2048
+, N1: 10240, N2: 10, N3: 10
+       103,404,534      stalled-cycles-frontend   #    1.99% frontend cycles idle     (31.71%)
+       780,036,209      stalled-cycles-backend    #   15.03% backend cycles idle      (32.51%)
+         8,942,595      branch-misses             #    0.34% of all branches          (35.89%)
+        48,808,137      L1-dcache-load-misses     #    1.01% of all L1-dcache accesses  (35.13%)
+   <not supported>      LLC-load-misses                                             
+        14,276,347      L1-icache-load-misses     #    2.06% of all L1-icache accesses  (33.92%)
+           389,400      dTLB-load-misses          #    2.30% of all dTLB cache accesses  (32.73%)
+           118,397      iTLB-load-misses          #   51.62% of all iTLB cache accesses  (31.75%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 2048
+, N1: 10, N2: 10240, N3: 10
+        33,714,327      stalled-cycles-frontend   #    2.00% frontend cycles idle     (28.37%)
+       203,832,736      stalled-cycles-backend    #   12.08% backend cycles idle      (32.73%)
+         2,078,515      branch-misses             #    0.13% of all branches          (44.44%)
+         8,748,140      L1-dcache-load-misses     #    0.61% of all L1-dcache accesses  (42.64%)
+   <not supported>      LLC-load-misses                                             
+         1,256,692      L1-icache-load-misses     #    0.78% of all L1-icache accesses  (36.21%)
+           329,983      dTLB-load-misses          #   18.29% of all dTLB cache accesses  (27.88%)
+            73,598      iTLB-load-misses          #   65.20% of all iTLB cache accesses  (22.80%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 2048
+, N1: 10, N2: 100, N3: 10240
+       294,268,428      stalled-cycles-frontend   #    3.54% frontend cycles idle     (30.69%)
+     2,124,405,224      stalled-cycles-backend    #   25.55% backend cycles idle      (31.69%)
+        14,604,921      branch-misses             #    0.66% of all branches          (35.08%)
+        62,889,392      L1-dcache-load-misses     #    1.82% of all L1-dcache accesses  (35.07%)
+   <not supported>      LLC-load-misses                                             
+        22,033,898      L1-icache-load-misses     #    2.19% of all L1-icache accesses  (35.08%)
+         3,714,616      dTLB-load-misses          #   11.90% of all dTLB cache accesses  (34.24%)
+           213,360      iTLB-load-misses          #   24.97% of all iTLB cache accesses  (31.89%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 2048
+, N1: 1024, N2: 64, N3: 1024
+     2,882,456,979      stalled-cycles-frontend   #    4.70% frontend cycles idle     (33.22%)
+    13,016,539,136      stalled-cycles-backend    #   21.24% backend cycles idle      (33.38%)
+       125,709,796      branch-misses             #    0.58% of all branches          (33.70%)
+       680,215,918      L1-dcache-load-misses     #    1.59% of all L1-dcache accesses  (33.55%)
+   <not supported>      LLC-load-misses                                             
+       217,351,319      L1-icache-load-misses     #    2.22% of all L1-icache accesses  (33.35%)
+        15,556,977      dTLB-load-misses          #    5.49% of all dTLB cache accesses  (33.15%)
+         4,806,568      iTLB-load-misses          #   16.00% of all iTLB cache accesses  (33.00%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 4096
+, N1: 10, N2: 10, N3: 10
+        26,911,806      stalled-cycles-frontend   #    3.88% frontend cycles idle     (25.27%)
+       159,948,533      stalled-cycles-backend    #   23.09% backend cycles idle      (25.26%)
+         1,447,768      branch-misses             #    0.34% of all branches          (37.37%)
+         5,895,221      L1-dcache-load-misses     #    0.92% of all L1-dcache accesses  (37.38%)
+   <not supported>      LLC-load-misses                                             
+           666,301      L1-icache-load-misses     #    1.78% of all L1-icache accesses  (37.40%)
+           179,437      dTLB-load-misses          #   31.55% of all dTLB cache accesses  (37.40%)
+            54,084      iTLB-load-misses          #   47.75% of all iTLB cache accesses  (36.22%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 4096
+, N1: 10240, N2: 10, N3: 10
+       157,678,763      stalled-cycles-frontend   #    2.81% frontend cycles idle     (30.67%)
+     1,126,669,494      stalled-cycles-backend    #   20.07% backend cycles idle      (31.23%)
+        10,421,964      branch-misses             #    0.32% of all branches          (34.69%)
+        48,146,381      L1-dcache-load-misses     #    0.87% of all L1-dcache accesses  (34.69%)
+   <not supported>      LLC-load-misses                                             
+        20,408,992      L1-icache-load-misses     #    2.33% of all L1-icache accesses  (34.71%)
+           601,922      dTLB-load-misses          #    2.76% of all dTLB cache accesses  (34.65%)
+           207,760      iTLB-load-misses          #   19.69% of all iTLB cache accesses  (32.81%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 4096
+, N1: 10, N2: 10240, N3: 10
+        40,676,952      stalled-cycles-frontend   #    2.47% frontend cycles idle     (29.69%)
+       216,159,065      stalled-cycles-backend    #   13.14% backend cycles idle      (34.34%)
+         2,323,493      branch-misses             #    0.13% of all branches          (46.20%)
+        10,215,774      L1-dcache-load-misses     #    0.58% of all L1-dcache accesses  (42.45%)
+   <not supported>      LLC-load-misses                                             
+           930,077      L1-icache-load-misses     #    0.73% of all L1-icache accesses  (33.15%)
+           291,276      dTLB-load-misses          #   22.78% of all dTLB cache accesses  (24.54%)
+            95,795      iTLB-load-misses          #   91.46% of all iTLB cache accesses  (23.23%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 4096
+, N1: 10, N2: 100, N3: 10240
+       698,901,989      stalled-cycles-frontend   #    7.42% frontend cycles idle     (33.80%)
+     1,999,719,533      stalled-cycles-backend    #   21.23% backend cycles idle      (34.97%)
+        19,471,171      branch-misses             #    0.82% of all branches          (35.50%)
+        96,422,859      L1-dcache-load-misses     #    2.25% of all L1-dcache accesses  (33.04%)
+   <not supported>      LLC-load-misses                                             
+        19,392,387      L1-icache-load-misses     #    1.73% of all L1-icache accesses  (32.26%)
+         4,849,683      dTLB-load-misses          #   13.04% of all dTLB cache accesses  (31.99%)
+           842,297      iTLB-load-misses          #   16.74% of all iTLB cache accesses  (31.99%)
+   <not supported>      L1-dcache-prefetch-misses                                   
+dynamic, 4096
+, N1: 1024, N2: 64, N3: 1024
+     2,558,887,870      stalled-cycles-frontend   #    4.46% frontend cycles idle     (33.07%)
+    12,874,205,423      stalled-cycles-backend    #   22.43% backend cycles idle      (33.13%)
+       121,341,160      branch-misses             #    0.56% of all branches          (33.52%)
+       623,155,804      L1-dcache-load-misses     #    1.39% of all L1-dcache accesses  (33.52%)
+   <not supported>      LLC-load-misses                                             
+       199,009,633      L1-icache-load-misses     #    2.14% of all L1-icache accesses  (33.48%)
+        13,658,722      dTLB-load-misses          #    4.14% of all dTLB cache accesses  (33.41%)
+         3,827,601      iTLB-load-misses          #   21.11% of all iTLB cache accesses  (33.22%)
+   <not supported>      L1-dcache-prefetch-misses                                   
