@@ -1,3 +1,7 @@
+local function project_path(filepath)
+    return "$(projectdir)/" .. filepath
+end
+
 local algorithm_problems = {
     {name = "luogu_p1003", dir = "algorithms/competitive/luogu/p1003", headerdir = "algorithms/competitive/test-support/include", test = true},
     {name = "luogu_p1067", dir = "algorithms/competitive/luogu/p1067", headerdir = "algorithms/competitive/test-support/include", test = true},
@@ -16,15 +20,16 @@ local algorithm_problems = {
 for _, problem in ipairs(algorithm_problems) do
     target("algo_" .. problem.name)
         set_kind("binary")
-        add_files(problem.dir .. "/src/*.cpp")
-        add_includedirs(problem.dir .. "/include")
+        add_files(project_path(problem.dir .. "/src/*.cpp"))
+        add_includedirs(project_path(problem.dir .. "/include"))
 
     target("algo_" .. problem.name .. "_test")
         set_kind("binary")
-        add_files(problem.dir .. "/tests/*.cpp")
-        add_includedirs(problem.dir .. "/include")
-        add_includedirs(problem.headerdir)
+        add_files(project_path(problem.dir .. "/tests/*.cpp"))
+        add_includedirs(project_path(problem.dir .. "/include"))
+        add_includedirs(project_path(problem.headerdir))
         add_packages("gtest")
+        add_links("gtest_main")
         if problem.test then
             add_tests("algo_" .. problem.name)
         end
@@ -40,7 +45,7 @@ local algorithm_samples = {
 for _, sample in ipairs(algorithm_samples) do
     target("algo_" .. sample.name)
         set_kind("binary")
-        add_files(sample.dir .. "/src/*.cpp")
+        add_files(project_path(sample.dir .. "/src/*.cpp"))
         if sample.openmp then
             add_packages("openmp")
         end

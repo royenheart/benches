@@ -1,30 +1,42 @@
 #pragma once
 
-#include <iostream>
 #include <queue>
-
-int s1s = 0;
-int s2s = 0;
-std::queue<int> q;
+#include <iostream>
 
 int answer() {
     int l;
     std::cin >> l;
+
+    int s1s = 0;
+    int s2s = 0;
+    bool first_output = true;
+    std::queue<int> q;
+
+    auto emit_line_prefix = [&first_output]() {
+        if (!first_output) {
+            std::cout << "\n";
+        }
+        first_output = false;
+    };
+
     for (int i = 0; i < l; i++) {
         char o;
         std::cin >> o;
         if (o == 'O') {
             if (s2s == 0) {
                 if (s1s == 0) {
-                    std::cout << "ERROR" << std::endl;
+                    emit_line_prefix();
+                    std::cout << "ERROR";
                 } else {
-                    std::cout << q.front() << " " << s1s * 2 + 1 << std::endl;
+                    emit_line_prefix();
+                    std::cout << q.front() << " " << s1s * 2 + 1;
                     s2s = s1s - 1;
                     s1s = 0;
                     q.pop();
                 }
             } else {
-                std::cout << q.front() << " " << 1 << std::endl;
+                emit_line_prefix();
+                std::cout << q.front() << " " << 1;
                 s2s--;
                 q.pop();
             }

@@ -4,6 +4,7 @@
 */
 
 #include <iostream>
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
