@@ -1,4 +1,7 @@
 /backups/
+/docs/superpowers/
+/docs/original-build/
+/docs/migration-map.md
 /.xmake/
 /build/
 /builds/
