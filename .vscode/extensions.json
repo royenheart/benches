@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "tboox.xmake-vscode",
+    "ms-vscode.cpptools",
+    "llvm-vs-code-extensions.vscode-clangd",
+    "xaver.clang-format",
+    "ms-python.python",
+    "ms-python.black-formatter",
+    "ms-python.flake8"
+  ]
+}

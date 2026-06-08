@@ -66,7 +66,7 @@ if has_config("enable_mpi") then
     end
 end
 
-if has_config("enable_cuda") then
+if has_config("enable_compute_graphics") then
     local cuda_targets = {
         {name = "atom_opt_cpu", file = "accels/cuda/labs/atomics/src/atomOptCPU.cu", common = {"data"}},
         {name = "atom_opt_gpu", file = "accels/cuda/labs/atomics/src/atomOptGPU.cu", common = {"data"}},

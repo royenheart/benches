@@ -1,0 +1,95 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "xmake: configure debug",
+      "type": "shell",
+      "command": "xmake",
+      "args": ["f", "-c", "-m", "debug"],
+      "problemMatcher": []
+    },
+    {
+      "label": "xmake: build all",
+      "type": "shell",
+      "command": "xmake",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "xmake: build target",
+      "type": "shell",
+      "command": "xmake",
+      "args": ["build", "${input:targetName}"],
+      "problemMatcher": ["$gcc"],
+      "dependsOn": ["xmake: configure debug"]
+    },
+    {
+      "label": "xmake: test",
+      "type": "shell",
+      "command": "xmake",
+      "args": ["test", "-v"],
+      "problemMatcher": []
+    },
+    {
+      "label": "xmake: compile_commands",
+      "type": "shell",
+      "command": "xmake",
+      "args": ["project", "-k", "compile_commands", "--lsp=clangd", "."],
+      "problemMatcher": []
+    },
+    {
+      "label": "python: format",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "--extra", "dev", "black", "tools"],
+      "problemMatcher": []
+    },
+    {
+      "label": "python: lint",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "--extra", "dev", "flake8", "tools"],
+      "problemMatcher": []
+    },
+    {
+      "label": "cpp: format",
+      "type": "shell",
+      "command": "find accels algorithms libs numerics tools -type f \\( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.cu' -o -name '*.cuh' \\) -print0 | xargs -0 -r clang-format -i",
+      "problemMatcher": []
+    },
+    {
+      "label": "perf: nsys selected target",
+      "type": "shell",
+      "command": "mkdir -p benchmarks/results/nsys && nsys profile --force-overwrite=true -o benchmarks/results/nsys/${input:targetName} ${workspaceFolder}/build/linux/x86_64/debug/${input:targetName} ${input:targetArgs}",
+      "problemMatcher": [],
+      "dependsOn": ["xmake: build target"]
+    },
+    {
+      "label": "perf: ncu selected target",
+      "type": "shell",
+      "command": "mkdir -p benchmarks/results/ncu && ncu --set full --export benchmarks/results/ncu/${input:targetName} --force-overwrite ${workspaceFolder}/build/linux/x86_64/debug/${input:targetName} ${input:targetArgs}",
+      "problemMatcher": [],
+      "dependsOn": ["xmake: build target"]
+    },
+    {
+      "label": "perf: linux perf record selected target",
+      "type": "shell",
+      "command": "mkdir -p benchmarks/results/perf && perf record -g -o benchmarks/results/perf/${input:targetName}.data -- ${workspaceFolder}/build/linux/x86_64/debug/${input:targetName} ${input:targetArgs}",
+      "problemMatcher": [],
+      "dependsOn": ["xmake: build target"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "targetName",
+      "type": "promptString",
+      "description": "xmake target name",
+      "default": "bench_core_test"
+    },
+    {
+      "id": "targetArgs",
+      "type": "promptString",
+      "description": "arguments passed to the selected target",
+      "default": ""
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug xmake target",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/linux/x86_64/debug/${input:targetName}",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "preLaunchTask": "xmake: build target"
+    },
+    {
+      "name": "Run xmake target",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "\"${workspaceFolder}/build/linux/x86_64/debug/${input:targetName}\" ${input:targetArgs}",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "xmake: build target"
+    },
+    {
+      "name": "Profile with Nsight Systems",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "mkdir -p benchmarks/results/nsys && nsys profile --force-overwrite=true -o benchmarks/results/nsys/${input:targetName} \"${workspaceFolder}/build/linux/x86_64/debug/${input:targetName}\" ${input:targetArgs}",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "xmake: build target"
+    },
+    {
+      "name": "Profile with Nsight Compute",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "mkdir -p benchmarks/results/ncu && ncu --set full --export benchmarks/results/ncu/${input:targetName} --force-overwrite \"${workspaceFolder}/build/linux/x86_64/debug/${input:targetName}\" ${input:targetArgs}",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "xmake: build target"
+    },
+    {
+      "name": "Profile with Linux perf",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "mkdir -p benchmarks/results/perf && perf record -g -o benchmarks/results/perf/${input:targetName}.data -- \"${workspaceFolder}/build/linux/x86_64/debug/${input:targetName}\" ${input:targetArgs}",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "xmake: build target"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "targetName",
+      "type": "promptString",
+      "description": "xmake target name",
+      "default": "bench_core_test"
+    },
+    {
+      "id": "targetArgs",
+      "type": "promptString",
+      "description": "arguments passed to the selected target",
+      "default": ""
+    }
+  ]
+}
