@@ -2,37 +2,46 @@ local function project_path(filepath)
     return "$(projectdir)/" .. filepath
 end
 
-local algorithm_problems = {
-    {name = "luogu_p1003", dir = "algorithms/competitive/luogu/p1003", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "luogu_p1067", dir = "algorithms/competitive/luogu/p1067", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "luogu_p1216", dir = "algorithms/competitive/luogu/p1216", headerdir = "algorithms/competitive/test-support/include", test = false},
-    {name = "luogu_p1540", dir = "algorithms/competitive/luogu/p1540", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "codeforces_div3_977a", dir = "algorithms/competitive/codeforces/div3-977a", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "codeforces_div3_977b", dir = "algorithms/competitive/codeforces/div3-977b", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "codeforces_div3_977c", dir = "algorithms/competitive/codeforces/div3-977c", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "codeforces_div3_977d", dir = "algorithms/competitive/codeforces/div3-977d", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "pat_a1", dir = "algorithms/competitive/pat/pat-a1", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "pat_a2", dir = "algorithms/competitive/pat/pat-a2", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "pat_a3", dir = "algorithms/competitive/pat/pat-a3", headerdir = "algorithms/competitive/test-support/include", test = true},
-    {name = "pat_a4", dir = "algorithms/competitive/pat/pat-a4", headerdir = "algorithms/competitive/test-support/include", test = true},
+local function competitive_problem_name(sourcefile)
+    local normalized = sourcefile:gsub("\\", "/")
+    local basename = normalized:match("([^/]+)%.cpp$")
+    return (basename:gsub("[^%w_]", "_"))
+end
+
+local competitive_sources =
+    os.files(path.join(os.projectdir(), "algorithms", "competitive", "*.cpp"))
+table.sort(competitive_sources)
+
+local competitive_tests_disabled = {
+    luogu_p1216 = true,
 }
 
-for _, problem in ipairs(algorithm_problems) do
-    target("algo_" .. problem.name)
-        set_kind("binary")
-        add_files(project_path(problem.dir .. "/src/*.cpp"))
-        add_includedirs(project_path(problem.dir .. "/include"))
+for _, sourcefile in ipairs(competitive_sources) do
+    local problem_name = competitive_problem_name(sourcefile)
+    local target_name = "algo_" .. problem_name
 
-    target("algo_" .. problem.name .. "_test")
+    target(target_name)
         set_kind("binary")
-        add_files(project_path(problem.dir .. "/tests/*.cpp"))
-        add_includedirs(project_path(problem.dir .. "/include"))
-        add_includedirs(project_path(problem.headerdir))
+        add_files(sourcefile)
+        add_deps("bench_competitive")
+        add_defines("BENCH_COMPETITIVE_BUILD_MAIN")
+
+    target(target_name .. "_test")
+        set_kind("binary")
+        add_files(sourcefile)
+        add_deps("bench_competitive")
+        add_defines("BENCH_COMPETITIVE_BUILD_TEST")
         add_packages("gtest")
         add_links("gtest_main")
-        if problem.test then
-            add_tests("algo_" .. problem.name)
+        if not competitive_tests_disabled[problem_name] then
+            add_tests(target_name)
         end
+
+    target(target_name .. "_bench")
+        set_kind("binary")
+        add_files(sourcefile)
+        add_deps("bench_competitive")
+        add_defines("BENCH_COMPETITIVE_BUILD_BENCH")
 end
 
 local algorithm_samples = {
