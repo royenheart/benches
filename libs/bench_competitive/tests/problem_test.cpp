@@ -2,9 +2,12 @@
 #include <gtest/gtest.h>
 
 #include <cstddef>
+#include <deque>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <tuple>
+#include <vector>
 
 namespace {
 
@@ -43,6 +46,20 @@ TEST(CompetitiveProblem, RunValueCaseComparesExpressionResult) {
     EXPECT_EQ(result.actual_value, 42);
     EXPECT_EQ(result.expected_value, 42);
     EXPECT_TRUE(result.passed());
+}
+
+TEST(CompetitiveProblem, PrintsVectorForDebugging) {
+    std::ostringstream output;
+    output << std::vector<int>{1, 2, 3};
+
+    EXPECT_EQ(output.str(), "[1, 2, 3]");
+}
+
+TEST(CompetitiveProblem, PrintsNestedQueueCandidatesForDebugging) {
+    std::ostringstream output;
+    output << std::deque<std::tuple<int, int>>{{3, 1}, {-1, 2}};
+
+    EXPECT_EQ(output.str(), "[(3, 1), (-1, 2)]");
 }
 
 TEST(CompetitiveProblem, PerformanceRegistryRunsCapturedCases) {

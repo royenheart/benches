@@ -23,6 +23,7 @@ target("bench_timing")
 target("bench_competitive")
     set_kind("headeronly")
     add_includedirs(project_path("libs/bench_competitive/include"), {public = true})
+    add_packages("fmt", {public = true})
     add_deps("bench_core", "bench_timing", {public = true})
 
 target("bench_accel_runtime")

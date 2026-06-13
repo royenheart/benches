@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bench/competitive/debug_print.hpp>
 #include <bench/core/io_capture.hpp>
 #include <bench/timing/timer.hpp>
 
