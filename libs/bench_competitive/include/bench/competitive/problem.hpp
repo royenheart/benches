@@ -1,6 +1,8 @@
 #pragma once
 
+#include <bench/competitive/binary_tree.hpp>
 #include <bench/competitive/debug_print.hpp>
+#include <bench/competitive/linked_list.hpp>
 #include <bench/core/io_capture.hpp>
 #include <bench/timing/timer.hpp>
 
