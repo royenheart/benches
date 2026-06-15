@@ -239,6 +239,36 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# Generated problem data and local benchmark artifacts
+/accels/problems/minesweeper/src/map/
+/accels/problems/minesweeper/src/map_generator
+/accels/problems/minesweeper/src/game_server
+/accels/problems/minesweeper/src/judger
+/accels/problems/minesweeper/src/answer
+/accels/problems/minesweeper/src/naive
+/accels/problems/minesweeper/src/naive_optim
+/accels/problems/minesweeper/src/interact
+/accels/problems/minesweeper/src/map_visualizer
+/accels/problems/cmul/src/backup/
+/accels/problems/cmul/src/outputs/
+/accels/problems/cmul/src/rights/
+/accels/problems/cmul/src/output.dat
+/accels/problems/cmul/src/right.dat
+/accels/problems/cmul/src/gen_matrix
+/accels/problems/cmul/src/omp_cmul
+/accels/problems/cmul/src/cmul_60
+/accels/problems/cinte/src/output.dat
+/accels/problems/convolution/simd-conv2/sample_data/conv_test_cases/
+/accels/problems/convolution/simd-conv2/convolution_handout/2dconv/generate_conv_case
+/accels/problems/convolution/simd-conv2/convolution_handout/2dconv/input.txt
+/accels/problems/convolution/simd-conv2/convolution_handout/2dconv/weight.txt
+/accels/problems/convolution/simd-conv2/convolution_handout/2dconv/output.txt
+/accels/problems/mmap/src/input.bin
+/accels/problems/mmap/src/output.bin
+/accels/problems/mmap/src/data_gen_cpp
+/accels/problems/mmap/src/solution
+/accels/problems/genO/src/answer.tar
+
 # Ruff stuff:
 .ruff_cache/
 
