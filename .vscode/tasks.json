@@ -2,6 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "setup: clang-format fallback",
+      "type": "shell",
+      "command": "xmake setup_clang_format",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "close": true
+      }
+    },
+    {
       "label": "xmake: configure debug",
       "type": "shell",
       "command": "xmake",

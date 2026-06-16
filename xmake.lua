@@ -15,6 +15,7 @@
 --   uv run --extra dev black tools
 --   uv run --extra dev flake8 tools
 --   clang-format -i <file.cpp>
+--   xmake setup_clang_format  # install clang-format fallback wrapper
 --
 -- Optional target groups:
 --   xmake f -c -m debug --enable_mpi=true
@@ -55,6 +56,30 @@ add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {lsp = "clangd"})
 set_languages("c17", "c++17")
 set_warnings("all")
+
+-- check clang-format version: .clang-format uses YAML markers (>= 18 required)
+on_config(function ()
+    import("core.project.config")
+    if config.get("__clang_format_checked") then return end
+    config.set("__clang_format_checked", true)
+    local cf_tmp = path.join(os.tmpdir(), "clang_format_ver.txt")
+    os.runv("sh", {"-c", "clang-format --version > " .. cf_tmp})
+    local cf_stdout = io.readfile(cf_tmp)
+    os.tryrm(cf_tmp)
+    if not cf_stdout then
+        return
+    end
+    local cf_major, cf_minor = cf_stdout:match("(%d+)%.(%d+)")
+    cf_major, cf_minor = tonumber(cf_major), tonumber(cf_minor)
+    if not cf_major or not cf_minor then
+        return
+    end
+    if cf_major < 18 then
+        cprint("${bright yellow}Warning: clang-format ${bright red}%d.%d${bright yellow} is too old (need >= 18).${clear}",
+               cf_major, cf_minor)
+        cprint("${bright yellow}The .clang-format config may not be recognized. Please install clang-format >= 18.${clear}")
+    end
+end)
 
 option("enable_mpi")
     set_default(false)
@@ -191,6 +216,22 @@ task("update_gpgpu_sdks")
     set_menu {
         usage = "xmake update_gpgpu_sdks",
         description = "Update local CUTLASS/cuDNN/TensorRT SDKs and rewrite modulefiles.",
+    }
+
+task("setup_clang_format")
+    set_category("plugin")
+    on_run(function ()
+        local script = path.join(os.projectdir(), "tools", "clang-format.sh")
+        local target_dir = path.join(os.getenv("HOME"), ".local", "bin")
+        local target = path.join(target_dir, "clang-format-fallback")
+        os.mkdir(target_dir)
+        os.tryrm(target)
+        os.ln(script, target)
+        cprint("${bright green}clang-format fallback installed: ${clear}%s -> %s", target, script)
+    end)
+    set_menu {
+        usage = "xmake setup_clang_format",
+        description = "Install clang-format fallback wrapper to ~/.local/bin for VS Code.",
     }
 
 includes("xmake/projects/libs.lua")

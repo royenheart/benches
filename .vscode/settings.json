@@ -13,6 +13,7 @@
     "--config",
     "${workspaceFolder}/.flake8"
   ],
+  "clang-format.executable": "clang-format-fallback",
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true
