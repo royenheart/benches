@@ -4,6 +4,7 @@
 --   BENCHES_PROXY=http://127.0.0.1:7890
 --
 -- Base build/test:
+--   xmake f -c                # start a clean configure
 --   xmake f -c -m debug       # configure a clean debug build
 --   xmake                     # build all default targets
 --   xmake test -v             # run registered tests verbosely
@@ -118,6 +119,7 @@ option("tensorrt_dir")
 option_end()
 
 add_requires("gtest", {optional = true})
+add_requires("fmt", {optional = true})
 add_requires("benchmark", {optional = true})
 add_requires("openmp", {optional = true})
 
