@@ -807,7 +807,11 @@ function NotebookPreview({ raw }: { raw: string }) {
       }))
       .filter((c: { source: string }) => c.source.trim());
   } catch {
-    cells = [{ type: "code", source: raw }];
+    const parts = raw.split(/\n(?=\[)/);
+    cells = parts.map((c) => {
+      const m = c.match(/^\[(\w+)\]([\s\S]*)/);
+      return m ? { type: m[1], source: m[2].trim() } : { type: "code", source: c.trim() };
+    }).filter((c) => c.source);
   }
 
   async function executeCell(index: number, code: string) {
