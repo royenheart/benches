@@ -478,6 +478,23 @@ function TopicEditWorkbench({
     setNewEdgeLabel("");
   }
 
+  function insertAssetRef(assetPath: string) {
+    const ta = document.querySelector(".md-source") as HTMLTextAreaElement | null;
+    if (!ta) return;
+    const ref = "\n[!asset:" + assetPath + "]\n";
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const before = (topic.body || "").slice(0, start);
+    const after = (topic.body || "").slice(end);
+    const newBody = before + ref + after;
+    onUpdate({ body: newBody });
+    requestAnimationFrame(() => {
+      ta.focus();
+      const pos = start + ref.length;
+      ta.setSelectionRange(pos, pos);
+    });
+  }
+
   function dropAsset(event: React.DragEvent<HTMLDivElement>) {
     event.preventDefault();
     if (!draggedAsset) {
@@ -639,10 +656,10 @@ function TopicEditWorkbench({
               <button
                 key={asset.path}
                 type="button"
-                draggable
-                onDragStart={() => setDraggedAsset(asset)}
-                onClick={() => onAddAsset(asset)}
-                aria-label={`拖动 ${asset.name}`}
+                // draggable
+                // onDragStart
+                onClick={() => insertAssetRef(asset.path)}
+                aria-label={`插入 ${asset.name}`}
               >
                 <strong>{asset.name}</strong>
                 <span>
