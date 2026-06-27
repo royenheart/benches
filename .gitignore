@@ -16,6 +16,10 @@
 __pycache__/
 *.pyc
 /.worktrees/
+/.superpowers/
+/web/node_modules/
+/web/dist/
+/web/.vite/
 compile_commands.json
 *.o
 *.so
@@ -231,9 +235,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#   and can be added to the global gitignore or merged into this file. However, if you prefer,
 #   you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 # Temporary file for partial code execution
@@ -268,6 +272,10 @@ tempCodeRunnerFile.py
 /accels/problems/mmap/src/data_gen_cpp
 /accels/problems/mmap/src/solution
 /accels/problems/genO/src/answer.tar
+/accels/problems/hpcgame/高性能存储阵列的软件开销优化/raid/attachments/md/.*.cmd
+/accels/problems/hpcgame/高性能存储阵列的软件开销优化/raid/attachments/md/*.o.d
+/accels/problems/hpcgame/高性能存储阵列的软件开销优化/raid/attachments/md/Module.symvers
+/accels/problems/hpcgame/高性能存储阵列的软件开销优化/raid/attachments/md/modules.order
 
 # Ruff stuff:
 .ruff_cache/
@@ -282,3 +290,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+.superpowers
+.plans

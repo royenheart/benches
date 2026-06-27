@@ -3,7 +3,11 @@ name = "benches"
 version = "0.1.0"
 description = "Small benchmarks, accelerator experiments, and algorithm tests."
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "jupyter>=1.1",
+    "ipykernel>=6.29",
+    "matplotlib>=3.8",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -11,9 +15,11 @@ dev = [
     "flake8>=7",
 ]
 gpgpu-accels = [
+    "networkx>=3",
     "numpy>=1.26",
     "pytest>=8",
     "torch",
+    "triton",
     "tilelang",
 ]
 

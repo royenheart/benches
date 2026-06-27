@@ -121,6 +121,7 @@ option_end()
 add_requires("gtest", {optional = true})
 add_requires("fmt", {optional = true})
 add_requires("benchmark", {optional = true})
+add_requires("fmt")
 add_requires("openmp", {optional = true})
 
 if has_config("enable_mpi") then

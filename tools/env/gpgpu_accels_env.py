@@ -21,11 +21,13 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
+from typing import TextIO
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PYPROJECT = REPO_ROOT / "pyproject.toml"
@@ -33,6 +35,8 @@ PYPROJECT_EXTRA = "gpgpu-accels"
 DEFAULT_SOFTWARE_ROOT = Path.home() / "softwares"
 DEFAULT_MODULE_ROOT = Path.home() / "envs"
 DOWNLOAD_CACHE = Path.home() / ".cache" / "benches" / "gpgpu_accels"
+DOWNLOAD_CHUNK_SIZE = 1024 * 1024
+DOWNLOAD_PROGRESS_INTERVAL = 1.0
 SYSTEM_CUDA_PARENT = Path("/usr/local")
 CUDNN_REDIST_INDEX_URL = (
     "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/"
@@ -512,8 +516,203 @@ def resolve_archive(name: str, url: str | None, archive: str | None, dry_run: bo
         return path
     DOWNLOAD_CACHE.mkdir(parents=True, exist_ok=True)
     print(f"+ download {url} -> {path}", flush=True)
-    urllib.request.urlretrieve(url, path)
+    download_with_progress(url, path)
     return path
+
+
+def download_with_progress(
+    url: str,
+    path: Path,
+    *,
+    chunk_size: int = DOWNLOAD_CHUNK_SIZE,
+    progress_interval: float = DOWNLOAD_PROGRESS_INTERVAL,
+    progress_stream: TextIO = sys.stderr,
+) -> Path:
+    path = Path(path).expanduser()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    part_path = partial_download_path(path)
+    remote_size = remote_content_length(url)
+
+    if path.exists():
+        local_size = path.stat().st_size
+        if remote_size is None or local_size == remote_size:
+            print(f"+ cached {path} ({format_bytes(local_size)})", flush=True)
+            return path
+        if local_size < remote_size:
+            if part_path.exists() and part_path.stat().st_size >= local_size:
+                path.unlink()
+            else:
+                path.replace(part_path)
+        else:
+            path.unlink()
+
+    if part_path.exists() and remote_size is not None and part_path.stat().st_size == remote_size:
+        part_path.replace(path)
+        print(f"+ cached {path} ({format_bytes(remote_size)})", flush=True)
+        return path
+
+    resume_from = part_path.stat().st_size if part_path.exists() else 0
+    headers = {"Range": f"bytes={resume_from}-"} if resume_from else {}
+    request = urllib.request.Request(url, headers=headers)
+
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            status = response.getcode()
+            if resume_from and status != 206:
+                print(
+                    f"+ resume not supported for {path.name}; restarting download",
+                    file=progress_stream,
+                    flush=True,
+                )
+                resume_from = 0
+                part_path.unlink(missing_ok=True)
+
+            mode = "ab" if resume_from and status == 206 else "wb"
+            total_size = response_total_size(response, resume_from)
+            write_response_to_file(
+                response,
+                part_path,
+                mode,
+                path.name,
+                resume_from,
+                total_size,
+                chunk_size,
+                progress_interval,
+                progress_stream,
+            )
+    except urllib.error.HTTPError as exc:
+        if exc.code == 416 and resume_from:
+            total_size = parse_content_range_total(exc.headers.get("Content-Range", ""))
+            if total_size is not None and resume_from == total_size:
+                part_path.replace(path)
+                print(f"+ cached {path} ({format_bytes(total_size)})", flush=True)
+                return path
+        raise SystemExit(f"Could not download {url}: HTTP {exc.code}") from exc
+    except (OSError, urllib.error.URLError) as exc:
+        raise SystemExit(f"Could not download {url}: {exc}") from exc
+
+    part_path.replace(path)
+    return path
+
+
+def write_response_to_file(
+    response: object,
+    part_path: Path,
+    mode: str,
+    filename: str,
+    resume_from: int,
+    total_size: int | None,
+    chunk_size: int,
+    progress_interval: float,
+    progress_stream: TextIO,
+) -> None:
+    downloaded = resume_from
+    started_at = time.monotonic()
+    last_progress_at = 0.0
+    with part_path.open(mode) as output:
+        while True:
+            chunk = response.read(chunk_size)  # type: ignore[attr-defined]
+            if not chunk:
+                break
+            output.write(chunk)
+            downloaded += len(chunk)
+            now = time.monotonic()
+            if progress_interval <= 0 or now - last_progress_at >= progress_interval:
+                print_download_progress(
+                    filename,
+                    downloaded,
+                    total_size,
+                    started_at,
+                    resume_from,
+                    progress_stream,
+                    final=False,
+                )
+                last_progress_at = now
+    print_download_progress(
+        filename,
+        downloaded,
+        total_size,
+        started_at,
+        resume_from,
+        progress_stream,
+        final=True,
+    )
+
+
+def partial_download_path(path: Path) -> Path:
+    return Path(str(path) + ".part")
+
+
+def remote_content_length(url: str) -> int | None:
+    request = urllib.request.Request(url, method="HEAD")
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return parse_int_header(response.headers.get("Content-Length"))
+    except (OSError, urllib.error.URLError, ValueError):
+        return None
+
+
+def response_total_size(response: object, resume_from: int) -> int | None:
+    headers = response.headers  # type: ignore[attr-defined]
+    content_range_total = parse_content_range_total(headers.get("Content-Range", ""))
+    if content_range_total is not None:
+        return content_range_total
+    content_length = parse_int_header(headers.get("Content-Length"))
+    if content_length is None:
+        return None
+    return resume_from + content_length
+
+
+def parse_content_range_total(value: str) -> int | None:
+    match = re.search(r"/(\d+)$", value)
+    return int(match.group(1)) if match else None
+
+
+def parse_int_header(value: str | None) -> int | None:
+    if not value:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+
+def print_download_progress(
+    filename: str,
+    downloaded: int,
+    total_size: int | None,
+    started_at: float,
+    started_downloaded: int,
+    stream: TextIO,
+    *,
+    final: bool,
+) -> None:
+    elapsed = max(time.monotonic() - started_at, 0.001)
+    transferred = max(downloaded - started_downloaded, 0)
+    speed = transferred / elapsed
+    if total_size:
+        percent = min(downloaded / total_size * 100, 100.0)
+        total_text = f" / {format_bytes(total_size)} ({percent:.1f}%)"
+    else:
+        total_text = " / unknown"
+    end = "\n" if final else "\r"
+    print(
+        f"  progress {filename}: {format_bytes(downloaded)}{total_text}, "
+        f"{format_bytes(speed)}/s",
+        end=end,
+        file=stream,
+        flush=True,
+    )
+
+
+def format_bytes(value: float) -> str:
+    units = ("B", "KiB", "MiB", "GiB", "TiB")
+    size = float(value)
+    for unit in units:
+        if abs(size) < 1024 or unit == units[-1]:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    raise AssertionError("unreachable")
 
 
 def default_sdk_url(name: str, cuda_series: str | None) -> str:
