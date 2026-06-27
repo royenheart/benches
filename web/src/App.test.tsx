@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import App from "./App";
 import type { Asset, BoardData } from "./types";
+import type { Core, CytoscapeOptions } from "cytoscape";
 
 const data: BoardData = {
   topics: [
@@ -176,5 +177,63 @@ describe("App board interactions", () => {
     });
 
     vi.unstubAllGlobals();
+  });
+
+  it("prevents browser context menu on board right-click", () => {
+    render(<App initialData={data} initialMode="edit" />);
+    const boardEl = screen.getByTestId("topic-board");
+    const spy = vi.spyOn(Event.prototype, "preventDefault");
+    fireEvent.contextMenu(boardEl);
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("dismisses context menu when clicking on the board", () => {
+    render(<App initialData={data} initialMode="edit" />);
+    const boardEl = screen.getByTestId("topic-board");
+    fireEvent.click(boardEl);
+    expect(screen.queryByText("新增专题")).not.toBeInTheDocument();
+    expect(screen.queryByText("删除专题")).not.toBeInTheDocument();
+  });
+
+  it("discards new topic when closing workbench without saving", async () => {
+    const fakeCy = {
+      on: vi.fn(),
+      destroy: vi.fn(),
+      elements: vi.fn(() => ({ remove: vi.fn() })),
+      add: vi.fn(),
+      nodes: vi.fn(() => ({ length: 0, forEach: vi.fn(), grabify: vi.fn() })),
+      edges: vi.fn(() => ({ forEach: vi.fn() })),
+      zoom: vi.fn(),
+      pan: vi.fn(),
+      width: vi.fn(() => 1200),
+      height: vi.fn(() => 800),
+      layout: vi.fn(() => ({ run: vi.fn() })),
+    };
+    let capturedCallback: ((evt: { target: unknown; renderedPosition: { x: number; y: number } }) => void) | null = null;
+    fakeCy.on = vi.fn((...args: unknown[]) => {
+      if (args[0] === "cxttap") capturedCallback = args[1] as typeof capturedCallback;
+      return fakeCy;
+    });
+    const createCy = vi.fn((_opts: CytoscapeOptions) => fakeCy as unknown as Core);
+
+    render(<App initialData={data} initialMode="edit" createCy={createCy} />);
+
+    await waitFor(() => {
+      expect(createCy).toHaveBeenCalled();
+      expect(capturedCallback).not.toBeNull();
+    });
+
+    act(() => {
+      capturedCallback!({ target: fakeCy, renderedPosition: { x: 400, y: 300 } });
+    });
+    expect(screen.getByText("新增专题")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("新增专题"));
+    expect(screen.getAllByText("未命名专题").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: "关闭" }));
+
+    expect(screen.queryAllByText("未命名专题")).toHaveLength(0);
   });
 });

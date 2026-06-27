@@ -11,6 +11,7 @@ interface AppProps {
   initialAssets?: Asset[];
   initialMode?: BoardMode;
   staticOnly?: boolean;
+  createCy?: (options: import("cytoscape").CytoscapeOptions) => import("cytoscape").Core;
 }
 
 type PanelState =
@@ -24,6 +25,7 @@ export default function App({
   initialData,
   initialAssets,
   initialMode = "read",
+  createCy,
   staticOnly = false
 }: AppProps) {
   const [data, setData] = useState<BoardData>(initialData ?? defaultData);
@@ -38,6 +40,7 @@ export default function App({
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const [saveStatus, setSaveStatus] = useState("未保存");
   const canEdit = !staticOnly && apiAvailable;
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -230,6 +233,37 @@ export default function App({
     setSaveStatus("已导出静态数据");
   }
 
+  useEffect(() => {
+    if (panel.type !== "edit" || !canEdit || activeTopic?.id === newTopicId) {
+      return;
+    }
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/topics", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          setSaveStatus("已自动保存");
+        }
+      } catch {
+        /* ignore auto-save failures */
+      }
+    }, 2000);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [data, panel, canEdit, activeTopic, newTopicId]);
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -271,6 +305,7 @@ export default function App({
         onClick={() => setContextMenu(null)}
       >
         <CytoscapeBoard
+          createCy={createCy}
           topics={visibleTopics}
           edges={data.edges}
           focusedTopicId={focusedTopicId}

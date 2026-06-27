@@ -156,6 +156,36 @@ describe("CytoscapeBoard lifecycle", () => {
     tapCallback!({ target: { id: () => "edge-1" } });
     expect(onEdgeCb).toHaveBeenCalledWith("edge-1");
   });
+
+  it("fires onTopicContextMenu when a node is right-clicked", () => {
+    const fakeCy = createFakeCy();
+    const onTopicCtx = vi.fn();
+    let cxttapCallback: ((event: { target: unknown; renderedPosition: { x: number; y: number } }) => void) | null = null;
+    fakeCy.on = vi.fn((event: string, callback: unknown) => {
+      if (event === "cxttap") cxttapCallback = callback as typeof cxttapCallback;
+    });
+    const createCy = vi.fn((_options: CytoscapeOptions) => fakeCy as unknown as Core);
+
+    render(
+      <CytoscapeBoard
+        topics={topics}
+        edges={edges}
+        focusedTopicId={null}
+        editMode={true}
+        onTopicClick={vi.fn()}
+        onTopicDoubleClick={vi.fn()}
+        onEdgeClick={vi.fn()}
+        onTopicContextMenu={onTopicCtx}
+        onBlankContextMenu={vi.fn()}
+        createCy={createCy}
+      />
+    );
+
+    expect(cxttapCallback).not.toBeNull();
+    const mockNode = { id: () => "a", isNode: () => true };
+    cxttapCallback!({ target: mockNode, renderedPosition: { x: 500, y: 400 } });
+    expect(onTopicCtx).toHaveBeenCalledWith("a", { x: 500, y: 400 });
+  });
 });
 
 function createFakeCy() {
