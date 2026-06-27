@@ -545,6 +545,20 @@ function TopicEditWorkbench({
             正文（Markdown）
             <textarea
               className="md-source"
+              style={{
+                background: "#1e293b",
+                color: "#e2e8f0",
+                border: "2px solid #111827",
+                borderRadius: 4,
+                padding: "14px 16px",
+                width: "100%",
+                minHeight: 260,
+                fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                fontSize: 14,
+                lineHeight: 1.7,
+                resize: "vertical",
+                tabSize: 2,
+              }}
               value={topic.body || ""}
               onChange={(event) => onUpdate({ body: event.target.value })}
               placeholder="Markdown 撰写正文..."

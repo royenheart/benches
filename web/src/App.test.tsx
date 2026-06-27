@@ -83,15 +83,17 @@ describe("App board interactions", () => {
     expect(screen.getByText("资产窗口")).toBeInTheDocument();
   });
 
-  it("renders MDEditor in edit workbench with light mode", () => {
+  it("markdown textarea has visible text contrast", () => {
     render(<App initialData={data} initialAssets={assets} initialMode="edit" />);
-
     fireEvent.doubleClick(screen.getByRole("button", { name: /滑动窗口最大值/ }));
-
     expect(screen.getByText(/正文（Markdown）/)).toBeInTheDocument();
-    const editor = document.querySelector(".w-md-editor");
-    expect(editor).toBeTruthy();
-    expect(editor!.getAttribute("data-color-mode")).toBe("light");
+    const ta = document.querySelector(".md-source") as HTMLTextAreaElement;
+    expect(ta).toBeTruthy();
+    const color = window.getComputedStyle(ta).color;
+    const bg = window.getComputedStyle(ta).backgroundColor;
+    expect(color).not.toBe("rgb(255, 255, 255)");
+    expect(bg).not.toBe("rgb(255, 255, 255)");
+    expect(color).not.toBe(bg);
   });
 
   it("shows edge manager with existing edges in edit workbench", () => {
@@ -237,50 +239,3 @@ describe("App board interactions", () => {
   });
 });
 
-describe("MDEditor text color", () => {
-  it("renders dark text in edit mode workbench", async () => {
-    const fakeCy = {
-      on: vi.fn(),
-      destroy: vi.fn(),
-      elements: vi.fn(() => ({ remove: vi.fn() })),
-      add: vi.fn(),
-      nodes: vi.fn(() => ({ length: 0, forEach: vi.fn(), grabify: vi.fn() })),
-      edges: vi.fn(() => ({ forEach: vi.fn() })),
-      zoom: vi.fn(),
-      pan: vi.fn(),
-      width: vi.fn(() => 1200),
-      height: vi.fn(() => 800),
-      layout: vi.fn(() => ({ run: vi.fn() })),
-    };
-    const createCy = vi.fn((_opts: CytoscapeOptions) => fakeCy as unknown as Core);
-
-    const { container } = render(
-      <App initialData={data} initialAssets={assets} initialMode="edit" createCy={createCy} />
-    );
-
-    fireEvent.doubleClick(screen.getByRole("button", { name: /滑动窗口最大值/ }));
-
-    // Wait for MDEditor to mount
-    await waitFor(() => {
-      expect(container.querySelector(".w-md-editor")).toBeTruthy();
-    });
-
-    const textarea = container.querySelector(".w-md-editor-text-input") as HTMLTextAreaElement | null;
-    expect(textarea).toBeTruthy();
-    
-    // Check CSS variable is set to light theme
-    const editor = container.querySelector(".w-md-editor")!;
-    expect(editor.getAttribute("data-color-mode")).toBe("light");
-    
-    // Verify text is NOT white (check that color is dark)
-    const color = window.getComputedStyle(textarea!).color;
-    const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    expect(rgbMatch).toBeTruthy();
-    const [r, g, b] = [parseInt(rgbMatch![1]), parseInt(rgbMatch![2]), parseInt(rgbMatch![3])];
-    
-    // Text should be dark (any channel below 80 means it's not white/light)
-    expect(r).toBeLessThan(80);
-    expect(g).toBeLessThan(80);
-    expect(b).toBeLessThan(80);
-  });
-});
