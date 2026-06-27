@@ -543,19 +543,21 @@ function TopicEditWorkbench({
           </label>
           <label>
             正文（Markdown）
-            <MDEditor
-              data-color-mode="light"
-              value={topic.body}
-              onChange={(value) => onUpdate({ body: value ?? "" })}
-              preview="live"
-              height={400}
-              visibleDragbar={false}
-              previewOptions={{
-                rehypePlugins: [[rehypeKatex, { output: "html" }]],
-                remarkPlugins: [remarkMath],
-              }}
+            <textarea
+              className="md-source"
+              value={topic.body || ""}
+              onChange={(event) => onUpdate({ body: event.target.value })}
+              placeholder="Markdown 撰写正文..."
+              spellCheck={false}
             />
           </label>
+          <div className="md-preview">
+            <MDEditor.Markdown
+              source={topic.body || "*（暂无内容）*"}
+              rehypePlugins={[[rehypeKatex, { output: "html" }]]}
+              remarkPlugins={[remarkMath]}
+            />
+          </div>
 
         <section className="edge-manager">
           <h2>关联专题</h2>

@@ -744,3 +744,41 @@ textarea {
 }
 
 /* Markdown editor textarea and preview */
+
+/* Markdown source textarea */
+.editor-window .md-source {
+  width: 100%;
+  min-height: 260px;
+  border: 2px solid #111827;
+  border-radius: 4px;
+  padding: 14px 16px;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  resize: vertical;
+  tab-size: 2;
+}
+
+.editor-window .md-source::placeholder {
+  color: #64748b;
+}
+
+/* Markdown preview pane */
+.md-preview {
+  margin-top: 16px;
+  min-height: 120px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 14px 18px;
+  background: #ffffff;
+}
+
+.md-preview .wmde-markdown {
+  background: transparent;
+  color: #111827;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.8;
+}
