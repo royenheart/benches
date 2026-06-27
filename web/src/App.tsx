@@ -8,6 +8,8 @@ import type { Asset, BoardData, BoardMode, Topic } from "./types";
 import MDEditor from "@uiw/react-md-editor";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface AppProps {
   initialData?: BoardData;
@@ -422,8 +424,7 @@ function TopicReadPage({ topic, onClose }: { topic: Topic; onClose: () => void }
           <span key={tag}>{tag}</span>
         ))}
       </div>
-      <article>{topic.body}</article>
-      <AssetRefs topic={topic} />
+      <MarkdownBody body={topic.body} />
     </section>
   );
 }
@@ -583,11 +584,7 @@ function TopicEditWorkbench({
             />
           </label>
           <div className="md-preview">
-            <MDEditor.Markdown
-              source={topic.body || "*（暂无内容）*"}
-              rehypePlugins={[[rehypeKatex, { output: "html" }]]}
-              remarkPlugins={[remarkMath]}
-            />
+            <MarkdownBody body={topic.body || "*（暂无内容）*"} />
           </div>
 
         <section className="edge-manager">
@@ -693,5 +690,131 @@ function AssetRefs({ topic }: { topic: Topic }) {
         <p>暂无引用资产</p>
       )}
     </section>
+  );
+}
+
+function MarkdownBody({ body }: { body: string }) {
+  const pattern = /\[!asset:([^\]]+)\]/g;
+  const segments: { type: "md" | "asset"; content: string }[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = pattern.exec(body)) !== null) {
+    if (m.index > last) segments.push({ type: "md", content: body.slice(last, m.index) });
+    segments.push({ type: "asset", content: m[1] });
+    last = m.index + m[0].length;
+  }
+  if (last < body.length) segments.push({ type: "md", content: body.slice(last) });
+  if (!segments.length) segments.push({ type: "md", content: body });
+
+  return (
+    <div className="markdown-body-wrap">
+      {segments.map((seg, i) =>
+        seg.type === "md" ? (
+          <MDEditor.Markdown
+            key={`md-${i}`}
+            source={seg.content}
+            rehypePlugins={[[rehypeKatex, { output: "html" }]]}
+            remarkPlugins={[remarkMath]}
+          />
+        ) : (
+          <AssetBlock key={`asset-${i}`} assetPath={seg.content} />
+        )
+      )}
+    </div>
+  );
+}
+
+function AssetBlock({ assetPath }: { assetPath: string }) {
+  const [body, setBody] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancel = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const r = await fetch(`/api/assets/preview?path=${encodeURIComponent(assetPath)}`);
+        if (r.ok) {
+          const d = await r.json() as { preview: string };
+          if (!cancel) setBody(d.preview);
+        }
+      } catch { /* ignore */ }
+      if (!cancel) setLoading(false);
+    }
+    void load();
+    return () => { cancel = true; };
+  }, [assetPath]);
+
+  const name = assetPath.split("/").at(-1) ?? assetPath;
+  const ext = (name.includes(".") ? name.slice(name.lastIndexOf(".")) : "").toLowerCase();
+
+  return (
+    <div className="asset-block-inline">
+      <div className="asset-block-header">
+        <code className="asset-block-path">{assetPath}</code>
+      </div>
+      <div className="asset-block-content">
+        {loading ? (
+          <p className="asset-block-loading">加载中...</p>
+        ) : !body ? (
+          <p className="asset-block-error">无法加载</p>
+        ) : ext === ".ipynb" ? (
+          <NotebookPreview raw={body} />
+        ) : (
+          <CodeBlock code={body} language={ext.slice(1)} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+const LANG: Record<string, string> = {
+  cpp: "cpp", cc: "cpp", cxx: "cpp", c: "c", cu: "cpp", cuh: "cpp",
+  h: "c", hpp: "cpp", py: "python", rs: "rust", go: "go",
+  js: "javascript", jsx: "jsx", ts: "typescript", tsx: "tsx",
+  sh: "bash", lua: "lua", md: "markdown", json: "json",
+};
+
+function CodeBlock({ code, language }: { code: string; language: string }) {
+  const lang = LANG[language] || "text";
+  return (
+    <div className="code-block-wrap">
+      <span className="code-block-lang">{language}</span>
+      <SyntaxHighlighter
+        language={lang}
+        style={oneDark}
+        showLineNumbers
+        customStyle={{ margin: 0, borderRadius: 4, maxHeight: 500, fontSize: 13 }}
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  );
+}
+
+function NotebookPreview({ raw }: { raw: string }) {
+  const cells = raw.split(/\n(?=\[)/).map((c) => {
+    const m = c.match(/^\[(\w+)\]([\s\S]*)/);
+    return m ? { type: m[1], code: m[2].trim() } : { type: "code", code: c.trim() };
+  }).filter((c) => c.code);
+
+  return (
+    <div className="notebook-preview">
+      {cells.map((cell, i) => (
+        <div key={i} className="notebook-cell">
+          <div className="notebook-cell-bar">
+            <span className="notebook-cell-type">{cell.type}</span>
+            <span className="notebook-cell-index">In [{i + 1}]</span>
+          </div>
+          <SyntaxHighlighter
+            language="python"
+            style={oneDark}
+            customStyle={{ margin: 0, borderRadius: "0 0 4px 4px", fontSize: 13 }}
+          >
+            {cell.code}
+          </SyntaxHighlighter>
+        </div>
+      ))}
+    </div>
   );
 }
