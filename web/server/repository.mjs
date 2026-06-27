@@ -100,7 +100,7 @@ export async function readAssetPreview(rootDir, relativePath) {
 
   const text = await readFile(absolute, "utf8");
   if (ext === ".ipynb") {
-    return notebookPreview(text);
+    return text;
   }
 
   return text.slice(0, 5000);

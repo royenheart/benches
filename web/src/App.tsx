@@ -8,6 +8,7 @@ import type { Asset, BoardData, BoardMode, Topic } from "./types";
 import MDEditor from "@uiw/react-md-editor";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import { usePyodide } from "./lib/pyodide";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -793,28 +794,67 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
 }
 
 function NotebookPreview({ raw }: { raw: string }) {
-  const cells = raw.split(/\n(?=\[)/).map((c) => {
-    const m = c.match(/^\[(\w+)\]([\s\S]*)/);
-    return m ? { type: m[1], code: m[2].trim() } : { type: "code", code: c.trim() };
-  }).filter((c) => c.code);
+  const { ready, loading: pyLoading, runCode } = usePyodide();
+  const [runState, setRunState] = useState<Record<number, string>>({});
+
+  let cells: { type: string; source: string }[] = [];
+  try {
+    const nb = JSON.parse(raw);
+    cells = (Array.isArray(nb.cells) ? nb.cells : [])
+      .map((c: { cell_type: string; source: string | string[] }) => ({
+        type: c.cell_type,
+        source: Array.isArray(c.source) ? c.source.join("") : String(c.source ?? ""),
+      }))
+      .filter((c: { source: string }) => c.source.trim());
+  } catch {
+    cells = [{ type: "code", source: raw }];
+  }
+
+  async function executeCell(index: number, code: string) {
+    setRunState((s) => ({ ...s, [index]: "running" }));
+    const output = await runCode(code);
+    setRunState((s) => ({ ...s, [index]: output }));
+  }
 
   return (
     <div className="notebook-preview">
-      {cells.map((cell, i) => (
-        <div key={i} className="notebook-cell">
-          <div className="notebook-cell-bar">
-            <span className="notebook-cell-type">{cell.type}</span>
-            <span className="notebook-cell-index">In [{i + 1}]</span>
+      {pyLoading ? (
+        <div className="notebook-py-status">加载 Python 运行时 (Pyodide ~12MB)...</div>
+      ) : null}
+      {cells.map((cell, i) => {
+        const isCode = cell.type === "code";
+        const output = runState[i];
+        return (
+          <div key={i} className="notebook-cell">
+            <div className="notebook-cell-bar">
+              <span className="notebook-cell-type">{cell.type}</span>
+              <span className="notebook-cell-index">In [{i + 1}]</span>
+              {isCode && ready ? (
+                <button
+                  type="button"
+                  className="notebook-run-btn"
+                  onClick={() => executeCell(i, cell.source)}
+                  disabled={output === "running"}
+                >
+                  {output === "running" ? "..." : "▶ Run"}
+                </button>
+              ) : null}
+            </div>
+            <SyntaxHighlighter
+              language="python"
+              style={oneDark}
+              customStyle={{ margin: 0, borderRadius: isCode ? 0 : "0 0 4px 4px", fontSize: 13 }}
+            >
+              {cell.source}
+            </SyntaxHighlighter>
+            {isCode && output && output !== "running" ? (
+              <div className="notebook-cell-output">
+                <pre>{output}</pre>
+              </div>
+            ) : null}
           </div>
-          <SyntaxHighlighter
-            language="python"
-            style={oneDark}
-            customStyle={{ margin: 0, borderRadius: "0 0 4px 4px", fontSize: 13 }}
-          >
-            {cell.code}
-          </SyntaxHighlighter>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

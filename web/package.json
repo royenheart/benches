@@ -19,6 +19,7 @@
     "cytoscape": "^3.34.0",
     "katex": "^0.17.0",
     "lucide-react": "^0.562.0",
+    "pyodide": "^314.0.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-syntax-highlighter": "^16.1.1",
