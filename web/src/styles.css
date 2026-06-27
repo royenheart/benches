@@ -673,9 +673,9 @@ textarea {
 
 .notebook-preview {
   display: grid;
-  gap: 1px;
+  gap: 3px;
   background: #cbd5e1;
-  border: 2px solid #cbd5e1;
+  border: 3px solid #111827;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -684,6 +684,14 @@ textarea {
   background: #ffffff;
 }
 
+.notebook-cell-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #f1f5f9;
+  border-bottom: 2px solid #e2e8f0;
+}
 .notebook-cell-bar {
   display: flex;
   align-items: center;

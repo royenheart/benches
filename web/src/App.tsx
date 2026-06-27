@@ -829,14 +829,14 @@ function NotebookPreview({ raw }: { raw: string }) {
             <div className="notebook-cell-bar">
               <span className="notebook-cell-type">{cell.type}</span>
               <span className="notebook-cell-index">In [{i + 1}]</span>
-              {isCode && ready ? (
+              {isCode ? (
                 <button
                   type="button"
                   className="notebook-run-btn"
                   onClick={() => executeCell(i, cell.source)}
-                  disabled={output === "running"}
+                  disabled={!ready || output === "running"}
                 >
-                  {output === "running" ? "..." : "▶ Run"}
+                  {output === "running" ? "..." : ready ? "▶ Run" : "加载中"}
                 </button>
               ) : null}
             </div>
