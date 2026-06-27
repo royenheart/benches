@@ -5,6 +5,9 @@ import { defaultData } from "./data/defaultData";
 import { assetMatchesQuery } from "./lib/assets";
 import { getRelatedTopicIds, topicMatchesQuery, createTopicAt } from "./lib/topics";
 import type { Asset, BoardData, BoardMode, Topic } from "./types";
+import MDEditor from "@uiw/react-md-editor";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 interface AppProps {
   initialData?: BoardData;
@@ -538,35 +541,21 @@ function TopicEditWorkbench({
               }
             />
           </label>
-          <div
-            ref={editorCanvasRef}
-            className="topic-editor-canvas"
-            data-testid="topic-editor-canvas"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={dropAsset}
-          >
-            <label>
-              正文
-              <textarea
-                className="body-editor"
-                value={topic.body}
-                onChange={(event) => onUpdate({ body: event.target.value })}
-              />
-            </label>
-            {topic.assetRefs.map((assetRef) => (
-              <div
-                key={assetRef.path}
-                className="asset-block"
-                style={{
-                  left: assetRef.position?.x ?? 24,
-                  top: assetRef.position?.y ?? 230
-                }}
-              >
-                <strong>{assetRef.label ?? assetRef.path.split("/").at(-1)}</strong>
-                <span>{assetRef.path}</span>
-              </div>
-            ))}
-          </div>
+          <label>
+            正文（Markdown）
+            <MDEditor
+              data-color-mode="light"
+              value={topic.body}
+              onChange={(value) => onUpdate({ body: value ?? "" })}
+              preview="live"
+              height={400}
+              visibleDragbar={false}
+              previewOptions={{
+                rehypePlugins: [[rehypeKatex, { output: "html" }]],
+                remarkPlugins: [remarkMath],
+              }}
+            />
+          </label>
 
         <section className="edge-manager">
           <h2>关联专题</h2>

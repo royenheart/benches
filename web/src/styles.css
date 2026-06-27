@@ -561,6 +561,169 @@ textarea {
   cursor: not-allowed;
 }
 
+
+/* Markdown body and asset blocks */
+.topic-body-markdown {
+  max-width: 920px;
+  margin-top: 24px;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+.topic-body-markdown .wmde-markdown {
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.topic-body-markdown table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+.topic-body-markdown table th,
+.topic-body-markdown table td {
+  border: 2px solid #cbd5e1;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.asset-block-inline {
+  margin: 18px 0;
+  border: 3px solid #111827;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 5px 5px 0 rgba(17, 24, 39, 0.1);
+}
+
+.asset-block-header {
+  background: #f1f5f9;
+  border-bottom: 2px solid #111827;
+  padding: 10px 14px;
+}
+
+.asset-block-path {
+  color: #334155;
+  font-weight: 900;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.asset-block-content {
+  padding: 14px;
+  background: #ffffff;
+}
+
+.asset-block-loading,
+.asset-block-error {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.asset-block-raw {
+  max-height: 400px;
+  overflow: auto;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.asset-block-raw code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.code-preview {
+  position: relative;
+}
+
+.code-preview-lang {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #111827;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 0 3px 0 3px;
+}
+
+.code-preview-block {
+  max-height: 480px;
+  overflow: auto;
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 16px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.code-preview-block code {
+  white-space: pre;
+}
+
+.notebook-preview {
+  display: grid;
+  gap: 1px;
+  background: #cbd5e1;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.notebook-cell {
+  background: #ffffff;
+}
+
+.notebook-cell-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.notebook-cell-type {
+  border: 2px solid #475569;
+  border-radius: 3px;
+  padding: 1px 7px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.notebook-cell-index {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.notebook-cell-code {
+  background: #f8fafc;
+  padding: 14px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 0;
+  overflow-x: auto;
+}
+
+.notebook-cell-code code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 760px) {
   .topbar {
     justify-content: flex-start;
@@ -579,3 +742,5 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* Markdown editor textarea and preview */

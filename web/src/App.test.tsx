@@ -83,16 +83,15 @@ describe("App board interactions", () => {
     expect(screen.getByText("资产窗口")).toBeInTheDocument();
   });
 
-
-  it("lets the edit drawer search and add repository assets", () => {
+  it("renders MDEditor in edit workbench with light mode", () => {
     render(<App initialData={data} initialAssets={assets} initialMode="edit" />);
 
-    fireEvent.doubleClick(screen.getByRole("button", { name: /单调队列模板/ }));
-    fireEvent.change(screen.getByLabelText("资产搜索"), { target: { value: "239" } });
-    fireEvent.dragStart(screen.getByRole("button", { name: /拖动 leetcode_239_sliding_window_max.cpp/ }));
-    fireEvent.drop(screen.getByTestId("topic-editor-canvas"), { clientX: 160, clientY: 120 });
+    fireEvent.doubleClick(screen.getByRole("button", { name: /滑动窗口最大值/ }));
 
-    expect(screen.getAllByText("leetcode_239_sliding_window_max.cpp")).toHaveLength(2);
+    expect(screen.getByText(/正文（Markdown）/)).toBeInTheDocument();
+    const editor = document.querySelector(".w-md-editor");
+    expect(editor).toBeTruthy();
+    expect(editor!.getAttribute("data-color-mode")).toBe("light");
   });
 
   it("shows edge manager with existing edges in edit workbench", () => {
@@ -235,5 +234,53 @@ describe("App board interactions", () => {
     fireEvent.click(screen.getByRole("button", { name: "关闭" }));
 
     expect(screen.queryAllByText("未命名专题")).toHaveLength(0);
+  });
+});
+
+describe("MDEditor text color", () => {
+  it("renders dark text in edit mode workbench", async () => {
+    const fakeCy = {
+      on: vi.fn(),
+      destroy: vi.fn(),
+      elements: vi.fn(() => ({ remove: vi.fn() })),
+      add: vi.fn(),
+      nodes: vi.fn(() => ({ length: 0, forEach: vi.fn(), grabify: vi.fn() })),
+      edges: vi.fn(() => ({ forEach: vi.fn() })),
+      zoom: vi.fn(),
+      pan: vi.fn(),
+      width: vi.fn(() => 1200),
+      height: vi.fn(() => 800),
+      layout: vi.fn(() => ({ run: vi.fn() })),
+    };
+    const createCy = vi.fn((_opts: CytoscapeOptions) => fakeCy as unknown as Core);
+
+    const { container } = render(
+      <App initialData={data} initialAssets={assets} initialMode="edit" createCy={createCy} />
+    );
+
+    fireEvent.doubleClick(screen.getByRole("button", { name: /滑动窗口最大值/ }));
+
+    // Wait for MDEditor to mount
+    await waitFor(() => {
+      expect(container.querySelector(".w-md-editor")).toBeTruthy();
+    });
+
+    const textarea = container.querySelector(".w-md-editor-text-input") as HTMLTextAreaElement | null;
+    expect(textarea).toBeTruthy();
+    
+    // Check CSS variable is set to light theme
+    const editor = container.querySelector(".w-md-editor")!;
+    expect(editor.getAttribute("data-color-mode")).toBe("light");
+    
+    // Verify text is NOT white (check that color is dark)
+    const color = window.getComputedStyle(textarea!).color;
+    const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    expect(rgbMatch).toBeTruthy();
+    const [r, g, b] = [parseInt(rgbMatch![1]), parseInt(rgbMatch![2]), parseInt(rgbMatch![3])];
+    
+    // Text should be dark (any channel below 80 means it's not white/light)
+    expect(r).toBeLessThan(80);
+    expect(g).toBeLessThan(80);
+    expect(b).toBeLessThan(80);
   });
 });
