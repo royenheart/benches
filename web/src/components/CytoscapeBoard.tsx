@@ -11,6 +11,7 @@ interface CytoscapeBoardProps {
   onTopicDoubleClick: (topicId: string) => void;
   onEdgeClick: (edgeId: string) => void;
   onBlankContextMenu: (point: { x: number; y: number }) => void;
+  onTopicContextMenu: (topicId: string, point: { x: number; y: number }) => void;
   createCy?: (options: cytoscape.CytoscapeOptions) => Core;
 }
 
@@ -22,6 +23,7 @@ export function CytoscapeBoard({
   onTopicClick,
   onTopicDoubleClick,
   onEdgeClick,
+  onTopicContextMenu,
   onBlankContextMenu,
   createCy = cytoscape
 }: CytoscapeBoardProps) {
@@ -31,6 +33,7 @@ export function CytoscapeBoard({
   const onTopicClickRef = useRef(onTopicClick);
   const onEdgeClickRef = useRef(onEdgeClick);
   const onTopicDoubleClickRef = useRef(onTopicDoubleClick);
+  const onTopicContextMenuRef = useRef(onTopicContextMenu);
   const onBlankContextMenuRef = useRef(onBlankContextMenu);
   const isTestEnvironment =
     (import.meta as ImportMeta & { env?: { MODE?: string } }).env?.MODE === "test";
@@ -39,9 +42,10 @@ export function CytoscapeBoard({
   useEffect(() => {
     onTopicClickRef.current = onTopicClick;
     onTopicDoubleClickRef.current = onTopicDoubleClick;
+    onTopicContextMenuRef.current = onTopicContextMenu;
     onEdgeClickRef.current = onEdgeClick;
     onBlankContextMenuRef.current = onBlankContextMenu;
-  }, [onBlankContextMenu, onEdgeClick, onTopicClick, onTopicDoubleClick]);
+  }, [onBlankContextMenu, onEdgeClick, onTopicClick, onTopicDoubleClick, onTopicContextMenu]);
 
   const elements = useMemo(
     () => [
@@ -205,9 +209,10 @@ export function CytoscapeBoard({
     cy.on("cxttap", (event) => {
       if (event.target === cy) {
         onBlankContextMenuRef.current(event.renderedPosition);
+      } else if (event.target.isNode()) {
+        onTopicContextMenuRef.current(event.target.id(), event.renderedPosition);
       }
     });
-
     cyRef.current = cy;
     return () => {
       cy.destroy();

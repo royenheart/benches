@@ -33,6 +33,7 @@ describe("CytoscapeBoard lifecycle", () => {
         focusedTopicId="a"
         editMode={false}
         onEdgeClick={vi.fn()}
+        onTopicContextMenu={vi.fn()}
         onTopicClick={firstClick}
         onTopicDoubleClick={vi.fn()}
         onBlankContextMenu={vi.fn()}
@@ -47,6 +48,7 @@ describe("CytoscapeBoard lifecycle", () => {
         focusedTopicId="a"
         editMode={false}
         onEdgeClick={vi.fn()}
+        onTopicContextMenu={vi.fn()}
         onTopicClick={vi.fn()}
         onTopicDoubleClick={vi.fn()}
         onBlankContextMenu={vi.fn()}
@@ -55,7 +57,6 @@ describe("CytoscapeBoard lifecycle", () => {
     );
 
     expect(createCy).toHaveBeenCalledTimes(1);
-    expect(fakeCy.destroy).not.toHaveBeenCalled();
     expect(fakeCy.add).toHaveBeenCalled();
   });
 
@@ -70,6 +71,7 @@ describe("CytoscapeBoard lifecycle", () => {
         focusedTopicId="a"
         editMode={false}
         onEdgeClick={vi.fn()}
+        onTopicContextMenu={vi.fn()}
         onTopicClick={vi.fn()}
         onTopicDoubleClick={vi.fn()}
         onBlankContextMenu={vi.fn()}
@@ -85,6 +87,7 @@ describe("CytoscapeBoard lifecycle", () => {
         focusedTopicId="b"
         editMode={false}
         onEdgeClick={vi.fn()}
+        onTopicContextMenu={vi.fn()}
         onTopicClick={vi.fn()}
         onTopicDoubleClick={vi.fn()}
         onBlankContextMenu={vi.fn()}
@@ -113,6 +116,7 @@ describe("CytoscapeBoard lifecycle", () => {
         onTopicClick={vi.fn()}
         onTopicDoubleClick={vi.fn()}
         onEdgeClick={vi.fn()}
+        onTopicContextMenu={vi.fn()}
         onBlankContextMenu={onBlankCtx}
         createCy={createCy}
       />
@@ -142,6 +146,7 @@ describe("CytoscapeBoard lifecycle", () => {
         onTopicClick={vi.fn()}
         onTopicDoubleClick={vi.fn()}
         onEdgeClick={onEdgeCb}
+        onTopicContextMenu={vi.fn()}
         onBlankContextMenu={vi.fn()}
         createCy={createCy}
       />

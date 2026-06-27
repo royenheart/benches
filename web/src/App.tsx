@@ -18,7 +18,7 @@ type PanelState =
   | { type: "read"; topicId: string }
   | { type: "edit"; topicId: string };
 
-type ContextMenuState = { x: number; y: number; boardX: number; boardY: number } | null;
+type ContextMenuState = | { type: "blank"; x: number; y: number; boardX: number; boardY: number } | { type: "topic"; topicId: string; x: number; y: number } | null;
 
 export default function App({
   initialData,
@@ -33,6 +33,7 @@ export default function App({
   const [query, setQuery] = useState("");
   const [focusedTopicId, setFocusedTopicId] = useState<string | null>(data.topics[0]?.id ?? null);
   const [focusedEdgeId, setFocusedEdgeId] = useState<string | null>(null);
+  const [newTopicId, setNewTopicId] = useState<string | null>(null);
   const [panel, setPanel] = useState<PanelState>({ type: "none" });
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const [saveStatus, setSaveStatus] = useState("未保存");
@@ -104,8 +105,16 @@ export default function App({
     setContextMenu(null);
   }
 
+  function handleTopicContextMenu(topicId: string, point: { x: number; y: number }) {
+    if (mode !== "edit" || !canEdit) {
+      setContextMenu(null);
+      return;
+    }
+    setContextMenu({ type: "topic", topicId, x: point.x, y: point.y });
+  }
+
   function addTopicFromContextMenu() {
-    if (!contextMenu) {
+    if (!contextMenu || contextMenu.type !== "blank") {
       return;
     }
 
@@ -113,6 +122,7 @@ export default function App({
     setData((current) => ({ ...current, topics: [...current.topics, topic] }));
     setFocusedTopicId(topic.id);
     setPanel({ type: "edit", topicId: topic.id });
+    setNewTopicId(topic.id);
     setContextMenu(null);
   }
 
@@ -145,6 +155,18 @@ export default function App({
 
   function generateEdgeId() {
     return `edge-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function deleteTopic(topicId: string) {
+    setData((current) => ({
+      ...current,
+      topics: current.topics.filter((topic) => topic.id !== topicId),
+      edges: current.edges.filter((edge) => edge.source !== topicId && edge.target !== topicId)
+    }));
+    setFocusedTopicId((current) => (current === topicId ? null : current));
+    setFocusedEdgeId(null);
+    setPanel((current) => (current.type !== "none" && current.topicId === topicId ? { type: "none" } : current));
+    setContextMenu(null);
   }
 
   function addEdge(source: string, target: string, kind: import("./types").EdgeKind = "related", label?: string) {
@@ -189,6 +211,7 @@ export default function App({
     }
 
     setSaveStatus("已保存");
+    setNewTopicId(null);
   }
 
   async function exportStaticData() {
@@ -244,6 +267,8 @@ export default function App({
       <section
         className="topic-board"
         data-testid="topic-board"
+        onContextMenu={(event) => event.preventDefault()}
+        onClick={() => setContextMenu(null)}
       >
         <CytoscapeBoard
           topics={visibleTopics}
@@ -253,12 +278,14 @@ export default function App({
           onTopicClick={handleTopicClick}
           onTopicDoubleClick={handleTopicDoubleClick}
           onEdgeClick={handleEdgeClick}
+          onTopicContextMenu={handleTopicContextMenu}
           onBlankContextMenu={(point) => {
             if (mode !== "edit" || !canEdit) {
               setContextMenu(null);
               return;
             }
             setContextMenu({
+              type: "blank",
               x: point.x,
               y: point.y,
               boardX: point.x,
@@ -287,9 +314,15 @@ export default function App({
 
         {contextMenu ? (
           <div className="context-menu" style={{ left: contextMenu.x, top: contextMenu.y }}>
-            <button type="button" onClick={addTopicFromContextMenu}>
-              新增专题
-            </button>
+            {contextMenu.type === "blank" ? (
+              <button type="button" onClick={addTopicFromContextMenu}>
+                新增专题
+              </button>
+            ) : contextMenu.type === "topic" ? (
+              <button type="button" onClick={() => deleteTopic(contextMenu.topicId)}>
+                删除专题
+              </button>
+            ) : null}
           </div>
         ) : null}
       </section>
@@ -308,7 +341,7 @@ export default function App({
           onDeleteEdge={deleteEdge}
           assets={assets}
           saveStatus={saveStatus}
-          onClose={() => setPanel({ type: "none" })}
+          onClose={() => { if (activeTopic.id === newTopicId) { deleteTopic(activeTopic.id); setNewTopicId(null); } setPanel({ type: "none" }); }}
           onUpdate={(patch) => updateTopic(activeTopic.id, patch)}
           onAddAsset={(asset, position) => addAssetRef(activeTopic.id, asset, position)}
           onSave={saveTopics}
