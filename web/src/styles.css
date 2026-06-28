@@ -862,6 +862,31 @@ textarea {
 }
 
 /* Notebook cell output */
+.notebook-md-cell {
+  padding: 14px 18px;
+  background: #ffffff;
+  line-height: 1.8;
+  font-size: 15px;
+  color: #111827;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.notebook-md-cell .wmde-markdown {
+  background: transparent;
+  color: #111827;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.notebook-md-cell .wmde-markdown pre,
+.notebook-md-cell .wmde-markdown code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
 .notebook-cell-output {
   background: #f8fafc;
   border-top: 1px solid #e2e8f0;
