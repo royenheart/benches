@@ -7,7 +7,7 @@ let pyodidePromise: Promise<PyodideInterface> | null = null;
 
 async function loadPyodide(): Promise<PyodideInterface> {
   const mod = await import("pyodide");
-  return mod.loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/" });
+  return mod.loadPyodide();
 }
 
 function getPyodide(): Promise<PyodideInterface> {
