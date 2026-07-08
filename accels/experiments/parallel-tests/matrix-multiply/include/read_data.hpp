@@ -51,7 +51,7 @@ std::optional<std::unordered_map<std::tuple<size_t, size_t, size_t>, std::vector
                             size_t n = std::stoull(matches[2]);
                             size_t p = std::stoull(matches[3]);
                             auto key = std::make_tuple(m, n, p); 
-                            map[key].push_back(std::filesystem::absolute(entry));
+                            map[key].push_back(std::filesystem::absolute(entry).string());
                         }
                     }
                 }

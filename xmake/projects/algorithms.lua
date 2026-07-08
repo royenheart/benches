@@ -8,6 +8,17 @@ local function competitive_problem_name(sourcefile)
     return (basename:gsub("[^%w_]", "_"))
 end
 
+-- gtest_main provides main() through a static library. MSVC infers the entry
+-- point/subsystem only from object files on the link line, not from libraries,
+-- so a test target whose objects contain no main() fails with LNK1561. Forcing
+-- the console subsystem makes the linker use its default entry (mainCRTStartup),
+-- which then resolves main() from gtest_main.lib. No-op on non-MSVC platforms.
+local function gtest_console_entry()
+    if is_plat("windows") then
+        add_ldflags("/subsystem:console", {force = true})
+    end
+end
+
 local competitive_sources =
     os.files(path.join(os.projectdir(), "algorithms", "competitive", "*.cpp"))
 table.sort(competitive_sources)
@@ -33,6 +44,7 @@ for _, sourcefile in ipairs(competitive_sources) do
         add_defines("BENCH_COMPETITIVE_BUILD_TEST")
         add_packages("gtest")
         add_links("gtest_main")
+        gtest_console_entry()
         if not competitive_tests_disabled[problem_name] then
             add_tests(target_name)
         end
@@ -52,10 +64,12 @@ local algorithm_samples = {
 }
 
 for _, sample in ipairs(algorithm_samples) do
-    target("algo_" .. sample.name)
-        set_kind("binary")
-        add_files(project_path(sample.dir .. "/src/*.cpp"))
-        if sample.openmp then
-            add_packages("openmp")
-        end
+    if (not sample.openmp) or has_config("enable_openmp") then
+        target("algo_" .. sample.name)
+            set_kind("binary")
+            add_files(project_path(sample.dir .. "/src/*.cpp"))
+            if sample.openmp then
+                add_packages("openmp")
+            end
+    end
 end

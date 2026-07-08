@@ -3,7 +3,42 @@
 #include <chrono>
 #include <random>
 #include <cstdlib>
+
+// Query the L2 cache size in a portable way. sysconf(_SC_LEVEL2_CACHE_SIZE) is
+// a Linux/glibc extension and <unistd.h> does not exist on MSVC, so use
+// GetLogicalProcessorInformation there and fall back to 256 KiB if unknown.
+#if defined(_WIN32)
+#include <windows.h>
+static long get_l2_cache_size() {
+    DWORD len = 0;
+    GetLogicalProcessorInformation(nullptr, &len);
+    if (len == 0) {
+        return 256 * 1024;
+    }
+    SYSTEM_LOGICAL_PROCESSOR_INFORMATION* buf =
+        static_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION*>(malloc(len));
+    if (buf == nullptr || !GetLogicalProcessorInformation(buf, &len)) {
+        free(buf);
+        return 256 * 1024;
+    }
+    long size = 0;
+    DWORD count = len / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+    for (DWORD i = 0; i < count; i++) {
+        if (buf[i].Relationship == RelationCache && buf[i].Cache.Level == 2) {
+            size = static_cast<long>(buf[i].Cache.Size);
+            break;
+        }
+    }
+    free(buf);
+    return size > 0 ? size : 256 * 1024;
+}
+#else
 #include <unistd.h>
+static long get_l2_cache_size() {
+    long size = sysconf(_SC_LEVEL2_CACHE_SIZE);
+    return size > 0 ? size : 256 * 1024;
+}
+#endif
 
 #define SIZE 200000
 #define LOOP 1
@@ -23,10 +58,7 @@ int main(int argc, char* argv[]) {
     int64_t *numbers = (int64_t*)malloc(SIZE * sizeof(int64_t));
 
     // L2 Cache - 单个 CPU L2 缓存大小
-    long l2 = sysconf(_SC_LEVEL2_CACHE_SIZE);
-    long l1d = sysconf(_SC_LEVEL1_DCACHE_SIZE);
-    long l1i = sysconf(_SC_LEVEL1_ICACHE_SIZE);
-    long l3 = sysconf(_SC_LEVEL3_CACHE_SIZE);
+    long l2 = get_l2_cache_size();
     long chunk = l2 / sizeof(int64_t) / 128;
 
     std::cout << "L2 Cache Size " << l2 << "Bytes" << std::endl;

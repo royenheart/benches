@@ -134,12 +134,13 @@ int main(int argc, char* argv[]) {
         // 由主进程分发 m1 到所有进程的 m1_local
         MPI_Scatter(&m1[0], m * n / size, MPI_DOUBLE, &m1_local[0], m * n / size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-        size_t i = 0;
+        // MSVC /openmp implements OpenMP 2.0, which requires a signed integer
+        // index in a parallel-for loop, so use a signed type for the outer index.
         size_t j = 0;
         size_t k = 0;
-        #pragma omp parallel for shared(answer_local, m1_local, m2, m, p, n, size) private(i, j, k)
+        #pragma omp parallel for shared(answer_local, m1_local, m2, m, p, n, size) private(j, k)
         // 局部乘法
-        for (i = 0; i < m / size; i++) {
+        for (long long i = 0; i < static_cast<long long>(m / size); i++) {
             for (j = 0; j < p; j++) {
                 for(k = 0; k < n; k++) {
                     answer_local[i * p + j] += m1_local[i * n + k] * m2[k * p + j];

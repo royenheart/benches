@@ -2,6 +2,17 @@ local function project_path(filepath)
     return "$(projectdir)/" .. filepath
 end
 
+-- gtest_main provides main() through a static library. MSVC infers the entry
+-- point/subsystem only from object files on the link line, not from libraries,
+-- so a test target whose objects contain no main() fails with LNK1561. Forcing
+-- the console subsystem makes the linker use its default entry (mainCRTStartup),
+-- which then resolves main() from gtest_main.lib. No-op on non-MSVC platforms.
+local function gtest_console_entry()
+    if is_plat("windows") then
+        add_ldflags("/subsystem:console", {force = true})
+    end
+end
+
 target("bench_core")
     set_kind("headeronly")
     add_includedirs(project_path("libs/bench_core/include"), {public = true})
@@ -38,6 +49,7 @@ target("bench_core_test")
     add_packages("gtest")
     add_links("gtest_main")
     add_tests("bench_core")
+    gtest_console_entry()
 
 target("bench_data_test")
     set_kind("binary")
@@ -46,6 +58,7 @@ target("bench_data_test")
     add_packages("gtest")
     add_links("gtest_main")
     add_tests("bench_data")
+    gtest_console_entry()
 
 target("bench_linalg_test")
     set_kind("binary")
@@ -54,6 +67,7 @@ target("bench_linalg_test")
     add_packages("gtest")
     add_links("gtest_main")
     add_tests("bench_linalg")
+    gtest_console_entry()
 
 target("bench_competitive_test")
     set_kind("binary")
@@ -62,3 +76,4 @@ target("bench_competitive_test")
     add_packages("gtest")
     add_links("gtest_main")
     add_tests("bench_competitive")
+    gtest_console_entry()

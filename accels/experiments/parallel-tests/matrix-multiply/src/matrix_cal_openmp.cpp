@@ -37,11 +37,13 @@ int main(int argc, char* argv[]) {
                         //============= OPENMP =============
                         auto start = std::chrono::high_resolution_clock::now();
                         
-                        size_t i = 0;
+                        // MSVC /openmp implements OpenMP 2.0, which requires a
+                        // signed integer index in a parallel-for loop, so use a
+                        // signed type for the parallelized outer index.
                         size_t j = 0;
                         size_t k = 0;
-                        #pragma omp parallel for shared(answer, m1, m2, m, p, n) private(i, j, k)
-                        for (i = 0; i < m; i++) {
+                        #pragma omp parallel for shared(answer, m1, m2, m, p, n) private(j, k)
+                        for (long long i = 0; i < static_cast<long long>(m); i++) {
                             for (j = 0; j < p; j++) {
                                 for (k = 0; k < n; k++) {
                                     answer[i * p + j] += m1[i * n + k] * m2[k * p + j];

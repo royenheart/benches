@@ -82,7 +82,11 @@ int main(int argc, char* argv[]) {
             printf("Iam thread %d, doing task generate work!\n", id);
             for (int i = 0; i < 100; i+=10) {
                 int k = i;
+                // #pragma omp task is OpenMP 3.0+; MSVC /openmp (2.0) lacks it,
+                // so guard it and run the body serially there.
+#if defined(_OPENMP) && _OPENMP >= 200805
                 #pragma omp task private(k) 
+#endif
                 {
                     int id = omp_get_thread_num();
                     func1(id, k, k + 10);
@@ -92,12 +96,16 @@ int main(int argc, char* argv[]) {
         int id = omp_get_thread_num();
         printf("Thread %d finished work in parallel code area!\n", id);
     }
+#if defined(_OPENMP) && _OPENMP >= 200805
     #pragma omp task
+#endif
     {
         int id = omp_get_thread_num();
         printf("Thread %d get the task outside the parallel code!\n", id);
     }
     // 同步，只有当任务池中全部任务执行完毕后才能继续执行
+#if defined(_OPENMP) && _OPENMP >= 200805
     #pragma omp taskwait
+#endif
     printf("All tasks done!\n");
 }

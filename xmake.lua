@@ -19,6 +19,7 @@
 --   xmake setup_clang_format  # install clang-format fallback wrapper
 --
 -- Optional target groups:
+--   xmake f -c -m debug --enable_openmp=true
 --   xmake f -c -m debug --enable_mpi=true
 --   xmake f -c -m debug --enable_compute_graphics=true
 --   xmake f -c -m debug --enable_gpgpu_accels=true
@@ -49,6 +50,10 @@
 --   python3 tools/env/gpgpu_accels_env.py install-local-sdks --latest --cuda-series 13
 --   python3 tools/env/gpgpu_accels_env.py install-local-sdks --cudnn-archive <tar.xz> --cudnn-version <version>
 --   python3 tools/env/gpgpu_accels_env.py install-local-sdks --tensorrt-archive <tar.zst|tar.gz> --tensorrt-version <version>
+--
+-- Others:
+--   If you encounterd some problems like mscv toolset not found, plz update xmake first:
+--      xmake update -s dev
 
 set_project("benches")
 set_version("0.1.0")
@@ -63,10 +68,7 @@ on_config(function ()
     import("core.project.config")
     if config.get("__clang_format_checked") then return end
     config.set("__clang_format_checked", true)
-    local cf_tmp = path.join(os.tmpdir(), "clang_format_ver.txt")
-    os.runv("sh", {"-c", "clang-format --version > " .. cf_tmp})
-    local cf_stdout = io.readfile(cf_tmp)
-    os.tryrm(cf_tmp)
+    local cf_stdout, err = os.iorunv("clang-format", {"--version"})
     if not cf_stdout then
         return
     end
@@ -81,6 +83,12 @@ on_config(function ()
         cprint("${bright yellow}The .clang-format config may not be recognized. Please install clang-format >= 18.${clear}")
     end
 end)
+
+option("enable_openmp")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Enable OpenMP targets (accels/openmp labs, parallel matrix, algorithms/parallel/openmp)")
+option_end()
 
 option("enable_mpi")
     set_default(false)
@@ -118,11 +126,13 @@ option("tensorrt_dir")
     set_description("TensorRT root directory for GPGPU accelerator targets")
 option_end()
 
-add_requires("gtest", {optional = true})
-add_requires("fmt", {optional = true})
-add_requires("benchmark", {optional = true})
+add_requires("gtest")
 add_requires("fmt")
-add_requires("openmp", {optional = true})
+add_requires("benchmark")
+
+if has_config("enable_openmp") then
+    add_requires("openmp")
+end
 
 if has_config("enable_mpi") then
     add_requires("cmake::MPI", {alias = "mpi", system = true})

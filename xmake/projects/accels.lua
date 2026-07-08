@@ -6,13 +6,15 @@ target("parallel_tests_datagen")
     set_kind("binary")
     add_files(project_path("accels/experiments/parallel-tests/matrix-multiply/src/datagen.cpp"))
 
-target("parallel_tests_matrix_openmp")
-    set_kind("binary")
-    add_files(project_path("accels/experiments/parallel-tests/matrix-multiply/src/matrix_cal_openmp.cpp"))
-    add_includedirs(project_path("accels/experiments/parallel-tests/matrix-multiply/include"))
-    add_packages("openmp")
+if has_config("enable_openmp") then
+    target("parallel_tests_matrix_openmp")
+        set_kind("binary")
+        add_files(project_path("accels/experiments/parallel-tests/matrix-multiply/src/matrix_cal_openmp.cpp"))
+        add_includedirs(project_path("accels/experiments/parallel-tests/matrix-multiply/include"))
+        add_packages("openmp")
+end
 
-if has_config("enable_mpi") then
+if has_config("enable_mpi") and has_config("enable_openmp") then
     target("parallel_tests_matrix_mpi_openmp")
         set_kind("binary")
         add_files(project_path("accels/experiments/parallel-tests/matrix-multiply/src/matrix_cal_mpi_openmp.cpp"))
@@ -20,29 +22,31 @@ if has_config("enable_mpi") then
         add_packages("mpi", "openmp")
 end
 
-local openmp_labs = {
-    "hello_world",
-    "loop_test",
-    "macro_openmp",
-    "master-worker",
-    "omp_funcs",
-    "optimize_strength_reduction",
-    "pi_calculate",
-    "section_test",
-    "simple_array_cal",
-    "single_test",
-    "sort_test",
-    "synchronization_test",
-    "task_test",
-    "var_parallel",
-    "worksharing_constructs",
-}
+if has_config("enable_openmp") then
+    local openmp_labs = {
+        "hello_world",
+        "loop_test",
+        "macro_openmp",
+        "master-worker",
+        "omp_funcs",
+        "optimize_strength_reduction",
+        "pi_calculate",
+        "section_test",
+        "simple_array_cal",
+        "single_test",
+        "sort_test",
+        "synchronization_test",
+        "task_test",
+        "var_parallel",
+        "worksharing_constructs",
+    }
 
-for _, name in ipairs(openmp_labs) do
-    target("accels_openmp_" .. name:gsub("-", "_"))
-        set_kind("binary")
-        add_files(project_path("accels/openmp/labs/" .. name .. "/src/main.cpp"))
-        add_packages("openmp")
+    for _, name in ipairs(openmp_labs) do
+        target("accels_openmp_" .. name:gsub("-", "_"))
+            set_kind("binary")
+            add_files(project_path("accels/openmp/labs/" .. name .. "/src/main.cpp"))
+            add_packages("openmp")
+    end
 end
 
 if has_config("enable_mpi") then

@@ -45,5 +45,9 @@
       "envManager": "ms-python.python:venv",
       "packageManager": "ms-python.python:pip"
     }
-  ]
+  ],
+  "workbench.colorCustomizations": {
+    "sideBar.border": "#DFE5EF",
+    "sideBar.background": "#fefefe"
+  }
 }
