@@ -14,7 +14,9 @@ import json
 from collections.abc import Iterable
 from pathlib import Path
 
-TOPICS_PATH = Path(__file__).resolve().parent.parent.parent / "web" / "public" / "data" / "topics.json"
+TOPICS_PATH = (
+    Path(__file__).resolve().parent.parent.parent / "web" / "public" / "data" / "topics.json"
+)
 
 PARENT_ID = "math.probability"
 PARENT_TITLE = "概率论专题"
