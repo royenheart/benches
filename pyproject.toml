@@ -13,6 +13,7 @@ dependencies = [
 dev = [
     "black>=24",
     "flake8>=7",
+    "nbformat>=5.10",
 ]
 gpgpu-accels = [
     "networkx>=3",
@@ -21,6 +22,20 @@ gpgpu-accels = [
     "torch",
     "triton",
     "tilelang",
+]
+probability = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "sympy>=1.12",
+    "matplotlib>=3.8",
+    "networkx>=3",
+    "plotly>=5",
+    "statsmodels>=0.14",
+    "pymc>=5",
+    "numpyro>=0.14",
+    "arviz>=0.18",
+    "torch",
+    "torchvision",
 ]
 
 [tool.uv]
