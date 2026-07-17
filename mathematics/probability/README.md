@@ -11,53 +11,53 @@
 
 ## Phase 0 · 启程
 
-| 章节 | 标题 | 状态 |
-|---|---|---|
-| [ch00 · 概率是什么 + 工作流落地](ch00-prob-intuition/) | 起点篇 | ✅ |
-| [ch01 · 样本空间、事件、概率公理 + 排列组合](ch01-sample-space-axioms/) | ⬜ | ⬜ |
+| 章节 | 状态 |
+|---|---|
+| ch00 · [概率是什么 + 工作流落地](ch00-prob-intuition/) | ✅ |
+| ch01 · [样本空间、事件、概率公理 + 排列组合](ch01-sample-space-axioms/) | ✅ |
 
 ## Phase 1 · 基础公理与一维世界
 
-| 章节 | 标题 | 状态 |
-|---|---|---|
-| [ch02 · 条件概率、贝叶斯定理、独立性](ch02-conditional-bayes/) | ✅ | ✅ |
-| ch03 · 离散型随机变量 | ⬜ | ⬜ |
-| ch04 · 连续型随机变量 | ⬜ | ⬜ |
+| 章节 | 状态 |
+|---|---|
+| ch02 · [条件概率、贝叶斯定理、独立性](ch02-conditional-bayes/) | ✅ |
+| ch03 · [离散型随机变量](ch03-discrete-rv/) | ✅ |
+| ch04 · [连续型随机变量](ch04-continuous-rv/) | ✅ |
 
 ## Phase 2 · 多维、极限与估计
 
-| 章节 | 标题 | 状态 |
-|---|---|---|
-| ch05 · 联合分布、协方差、相关 vs 因果 | ⬜ | ⬜ |
-| ch06 · 矩母函数、大数律、中心极限定理 | ⬜ | ⬜ |
-| ch07 · 次序统计量、分位数、Bootstrap | ⬜ | ⬜ |
-| ch08 · 参数估计：矩法、MLE、Fisher 信息 | ⬜ | ⬜ |
+| 章节 | 状态 |
+|---|---|
+| ch05 · [联合分布、协方差、相关 vs 因果](ch05-joint-covariance/) | ✅ |
+| ch06 · [矩母函数、大数律、中心极限定理](ch06-mgf-lln-clt/) | ✅ |
+| ch07 · [次序统计量、分位数、Bootstrap](ch07-order-statistics-bootstrap/) | ✅ |
+| ch08 · [参数估计：矩法、MLE、Fisher 信息](ch08-estimation-mle-fisher/) | ✅ |
 
 ## Phase 3 · 随机过程与信息论碎片
 
-| 章节 | 标题 | 状态 |
-|---|---|---|
-| ch09 · 马尔可夫链 | ⬜ | ⬜ |
-| ch10 · 泊松过程与排队论速写 | ⬜ | ⬜ |
-| ch11 · 熵、KL 散度、互信息、交叉熵 | ⬜ | ⬜ |
+| 章节 | 状态 |
+|---|---|
+| ch09 · [马尔可夫链](ch09-markov-chains/) | ✅ |
+| ch10 · [泊松过程与排队论速写](ch10-poisson-queueing/) | ✅ |
+| ch11 · [熵、KL 散度、互信息、交叉熵](ch11-entropy-kl/) | ✅ |
 
 ## Phase 4 · 贝叶斯与现代 AI 应用
 
-| 章节 | 标题 | 状态 |
-|---|---|---|
-| ch12 · 贝叶斯推断基础 | ⬜ | ⬜ |
-| ch13 · 蒙特卡洛族 | ⬜ | ⬜ |
-| [ch14 · 变分推断、重参数化、ELBO 推导](ch14-variational-VAE/) | ✅ | ✅ |
-| ch15 · PGM + 强化学习策略梯度 | ⬜ | ⬜ |
-| ch16 · 生成模型评估与采样几何 | ⬜ | ⬜ |
-| ch17 · RLHF / 偏好模型概率机制 | ⬜ | ⬜ |
+| 章节 | 状态 |
+|---|---|
+| ch12 · [贝叶斯推断基础](ch12-bayes-pymc/) | ✅ |
+| ch13 · [蒙特卡洛族](ch13-monte-carlo-mcmc/) | ✅ |
+| ch14 · [变分推断、重参数化、ELBO 推导](ch14-variational-VAE/) | ✅ |
+| ch15 · [PGM + 强化学习策略梯度](ch15-pgm-policy-gradient/) | ✅ |
+| ch16 · [生成模型评估与采样几何](ch16-generative-eval/) | ✅ |
+| ch17 · [RLHF / 偏好模型概率机制](ch17-rlhf-preference/) | ✅ |
 
 ## 附录
 
-| 章节 | 标题 | 状态 |
-|---|---|---|
-| appendixA · 数值稳定性手册 | ⬜ | ⬜ |
-| appendixB · 工程速查表 | ⬜ | ⬜ |
+| 章节 | 状态 |
+|---|---|
+| [appendixA · 数值稳定性手册](appendixA-numerical-stability/) | ✅ |
+| [appendixB · 工程速查表](appendixB-cheatsheet/) | ✅ |
 
 ## 资源
 
