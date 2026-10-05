@@ -1,0 +1,58 @@
+# 教学示意：Windmill OpenFlow（flow.yaml，已精简；完整 schema 见其 OpenAPI 文档）
+# Windmill 的心智：flow = 一串 modules；pg 连接是 resource 概念；脚本即步骤
+summary: incident-response
+description: 每日事件响应：PG 取视图 → broker 起沙箱 → 两个 agent → 审批 → 发布回收
+
+value:
+  modules:
+    # 对应 fetch-view：pg 查询 = python rawscript + Windmill postgres resource（语义私有：连接不是步骤类型）
+    - id: fetch_view
+      type: rawscript
+      language: python3
+      content: |
+        import wmill, psycopg
+        pg = wmill.get_resource("u/ops/pg_prod")
+        with psycopg.connect(pg) as conn:
+            rows = conn.execute(
+                "SELECT * FROM v_daily_incidents WHERE day = %s",
+                (wmill.get_resume_data() or {},),
+            ).fetchall()
+        return [dict(r) for r in rows]
+      retry: {attempts: 3, interval: 30, exponential: true}   # 语义私有：秒数 + 布尔开关
+
+    # 对应 provision-env：bash rawscript 直连 broker
+    - id: provision_env
+      type: rawscript
+      language: bash
+      content: |
+        curl -sf -X POST "$OPS_BROKER/sandboxes" -H 'Content-Type: application/json' -d \
+          '{"image":"ops-agent-base:3","tier":"container","ttl":1800,"egress":{"pypi":true,"npm":false}}'
+
+    # 对应 agent-triage / agent-draft：结果引用方言 results.<id>
+    - id: agent_triage
+      type: rawscript
+      language: bash
+      content: |
+        curl -sf -X POST "$AGENT_RUNNER/run" -d \
+          "{\"sandbox\": $(cat /tmp/provision_env.json | jq .sandbox_id),
+            \"prompt\": \"事件初判严重级别（P0-P3）：$(echo "$1" | jq -c .)\"}"
+
+    - id: agent_draft
+      type: rawscript
+      language: bash
+      content: |
+        curl -sf -X POST "$AGENT_RUNNER/run" -d \
+          "{\"sandbox\": ..., \"prompt\": \"为 P0/P1 起草处理建议：$1\"}"
+
+    # 对应 approve-plan：审批是原生模块——流程挂起，人在 Windmill UI 批准后继续（审批值即模块输出）
+    - id: approve_plan
+      type: approval
+      approvers: ["oncall-human"]
+
+    # 对应 publish + teardown
+    - id: publish
+      type: rawscript
+      language: bash
+      content: |
+        curl -sf -X POST "$AGENT_RUNNER/notify" -d "{\"channel\":\"ops-channel\",\"text\":\"$1\"}"
+        curl -sf -X DELETE "$OPS_BROKER/sandboxes/$(cat /tmp/provision_env.json | jq -r .sandbox_id)" || true

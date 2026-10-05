@@ -1,0 +1,77 @@
+# 教学示意：Argo Workflows（Kubernetes CRD；已精简）
+# 心智差异最大：没有 SQL 概念、没有审批概念——一切是你自己的容器模板
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: incident-response-
+spec:
+  entrypoint: main
+  templates:
+    # DAG：依赖用 depends 表达式（比 needs 列表更强，也更难写）
+    - name: main
+      dag:
+        tasks:
+          - name: fetch-view
+            template: sql
+          - name: provision-env
+            template: provision
+            depends: fetch-view
+          - name: agent-triage
+            template: agent
+            depends: provision-env
+            arguments:
+              parameters:
+                - name: prompt
+                  value: "事件初判严重级别（P0-P3）：{{tasks.fetch-view.outputs.result}}"
+          - name: agent-draft
+            template: agent
+            depends: agent-triage
+            arguments:
+              parameters:
+                - name: prompt
+                  value: "为 P0/P1 起草处理建议：{{tasks.agent-triage.outputs.result}}"
+          - name: approve-plan
+            template: approve
+            depends: agent-draft
+          - name: publish
+            template: notify
+            depends: approve-plan
+
+    # 对应 fetch-view：语义私有——Argo 没有 pg 插件，SQL 是你塞进容器的
+    - name: sql
+      retryStrategy: {limit: 3, backoff: {duration: 30s, factor: 2}}   # 第三种 retry 方言：factor 乘数
+      container:
+        image: postgres:16-alpine
+        command: [sh, -c]
+        args:
+          - psql "$PG_URL" -c "SELECT row_to_json(t) FROM v_daily_incidents t" > /tmp/out
+        # 输出靠 stdout 抓取，没有 schema 校验
+
+    # 对应 provision-env
+    - name: provision
+      container:
+        image: curlimages/curl:8
+        command: [sh, -c]
+        args: ['curl -sf -X POST "$OPS_BROKER/sandboxes" -d ''{"image":"ops-agent-base:3","tier":"container","ttl":1800}''']
+
+    # 对应 agent-triage / agent-draft：同一个模板参数化复用
+    - name: agent
+      inputs:
+        parameters: [{name: prompt}]
+      container:
+        image: ops-runner:1
+        command: [run-agent]
+        args: ["{{inputs.parameters.prompt}}"]
+
+    # 对应 approve-plan：语义私有——suspend 冻结整个 workflow，靠外部 argo resume 恢复
+    - name: approve
+      suspend: {}
+
+    # 对应 publish + teardown
+    - name: notify
+      container:
+        image: curlimages/curl:8
+        command: [sh, -c]
+        args: ['curl -sf -X POST "$AGENT_RUNNER/notify" -d ''{"channel":"ops-channel"}'' && curl -sf -X DELETE "$OPS_BROKER/sandboxes/$SANDBOX_ID" || true']
+
+# 触发不在这个文件里：另建 CronWorkflow（cron）或 Argo Events EventSource（webhook/文件/消息）

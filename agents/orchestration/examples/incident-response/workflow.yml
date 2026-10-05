@@ -1,0 +1,50 @@
+# 与 workflow.json 内容一致的 YAML 写法（人类阅读版；JSON 是 YAML 的子集，二者等价）
+id: incident-response
+version: "0.1"
+triggers:
+  - type: cron
+    cron: "0 8 * * *"
+defaults:
+  retries: {max_attempts: 3, backoff: exponential, interval: 30s}
+
+steps:
+  - id: fetch-view
+    type: sql
+    engine: postgres
+    statement: SELECT * FROM v_daily_incidents WHERE day = '${{ trigger.date }}'
+    output: {type: array, items: {type: object}}
+
+  - id: provision-env
+    type: provision
+    needs: [fetch-view]
+    backend:
+      image: ops-agent-base:3
+      tier: container            # container | microvm | vm —— 显式声明，broker 按信任等级放置（DSec 同款语义）
+      ttl_sec: 1800
+      egress: {pypi: true, npm: false}
+    output: {type: object, schema: {sandbox_id: string, endpoint: string}}
+
+  - id: agent-triage
+    type: agent
+    needs: [provision-env]
+    agent: triage-bot
+    prompt: "事件初判严重级别（P0-P3）：${{ steps.fetch-view.output }}"
+    output: {type: object}
+
+  - id: agent-draft
+    type: agent
+    needs: [agent-triage]
+    agent: writer-bot
+    prompt: "为 P0/P1 起草处理建议：${{ steps.agent-triage.output }}"
+    output: {type: object}
+
+  - id: approve-plan
+    type: approval
+    needs: [agent-draft]
+    approvers: [oncall-human]
+
+  - id: publish
+    type: notify
+    needs: [approve-plan]
+    channel: ops-channel
+    teardown: [provision-env]   # 发布完回收沙箱（broker 侧 TTL 兜底）

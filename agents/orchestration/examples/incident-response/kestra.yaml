@@ -1,0 +1,63 @@
+# 教学示意：Kestra 语法（已精简；插件类型 id 以 kestra.io/plugins 为准）
+# 语义差异点用 「语义私有N」 注释标出；整体骨架与 workflow.yml 一一对应
+id: incident-response
+namespace: ops
+
+triggers:
+  - id: daily
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 8 * * *"
+
+tasks:
+  # 对应 fetch-view：SQL 是一等公民（JDBC 插件）
+  - id: fetch-view
+    type: io.kestra.plugin.jdbc.postgresql.Query
+    url: "{{ kv('PG_URL') }}"                    # 表达式方言①：Pebble 模板 {{ ... }}
+    sql: "SELECT * FROM v_daily_incidents WHERE day = '{{ trigger.date ?? execution.startDate }}'"
+    # 语义私有②：输出形状由 JDBC 结果集决定，没有我们 workflow.json 里的 output schema 契约
+
+  # 对应 provision-env：Kestra 不认识“沙箱”，只是一次 HTTP 调用（broker 才懂 tier/TTL/egress）
+  - id: provision-env
+    type: io.kestra.plugin.fs.http.Request
+    uri: "http://sandbox-broker:8080/sandboxes"
+    method: POST
+    contentType: application/json
+    body: |
+      {"image": "ops-agent-base:3", "tier": "container", "ttl": 1800,
+       "egress": {"pypi": true, "npm": false}}
+    retry: {maxAttempts: 3, interval: PT30S, type: exponential}   # 语义私有③：ISO-8601 时长 + 重试类型枚举
+
+  # 对应 agent-triage / agent-draft：agent 步骤 = 调用你的 runner，Kestra 不感知 agent 概念
+  - id: agent-triage
+    type: io.kestra.plugin.fs.http.Request
+    uri: "http://agent-runner:9000/run"
+    method: POST
+    body: |
+      {"sandbox": "{{ outputs.provision-env.body.data.sandbox_id }}",
+       "prompt": "事件初判严重级别（P0-P3）：{{ outputs.fetch-view.rows | json }}"}
+
+  - id: agent-draft
+    type: io.kestra.plugin.fs.http.Request
+    uri: "http://agent-runner:9000/run"
+    method: POST
+    body: |
+      {"sandbox": "{{ outputs.provision-env.body.data.sandbox_id }}",
+       "prompt": "为 P0/P1 起草处理建议：{{ outputs.agent-triage.body }}"}
+
+  # 对应 approve-plan：审批 = 暂停整个 flow，人工在 UI/API resume（行为与我们的“账本恢复”不同）
+  - id: approve-plan
+    type: io.kestra.plugin.core.flow.Pause
+
+  # 对应 publish
+  - id: publish
+    type: io.kestra.plugin.fs.http.Request
+    uri: "http://agent-runner:9000/notify"
+    method: POST
+    body: '{"channel": "ops-channel", "text": "{{ outputs.agent-draft.body }}"}'
+
+  # 对应 teardown：只是“顺序靠后的另一个任务”，没有我们 steps 里的 teardown 字段语义
+  - id: teardown-env
+    type: io.kestra.plugin.fs.http.Request
+    uri: "http://sandbox-broker:8080/sandboxes/{{ outputs.provision-env.body.data.sandbox_id }}"
+    method: DELETE
+    allowFailed: true

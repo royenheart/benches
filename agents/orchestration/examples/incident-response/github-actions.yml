@@ -1,0 +1,42 @@
+# 教学示意：GitHub Actions —— 放在这里是为了看“缺什么”，不建议真的用它跑 agent 工作流
+name: incident-response
+
+on:
+  schedule:
+    - cron: "0 8 * * *"      # 语义私有：cron 一律按 UTC
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    services:
+      postgres:              # 对应“配置好存储”：服务容器
+        image: postgres:16
+        env: {POSTGRES_PASSWORD: toy}
+    steps:
+      # 对应 fetch-view：没有 SQL 步骤类型，自己装客户端
+      - name: fetch-view
+        run: psql "$PG_URL" -c "SELECT row_to_json(t) FROM v_daily_incidents t" | tee rows.json
+
+      # 对应 provision-env
+      - name: provision-env
+        run: curl -sf -X POST "$OPS_BROKER/sandboxes" -d '{"image":"ops-agent-base:3","tier":"container","ttl":1800}' | tee sandbox.json
+
+      # 对应 agent-triage / agent-draft：prompt 只是 shell 参数，没有类型化输出
+      - name: agent-triage
+        run: run-agent --sandbox "$(jq -r .sandbox_id sandbox.json)" "事件初判严重级别（P0-P3）：$(cat rows.json)" | tee triage.json
+
+      - name: agent-draft
+        run: run-agent "为 P0/P1 起草处理建议：$(cat triage.json)" | tee draft.json
+
+      # 对应 approve-plan：语义私有——GitHub 没有流程内暂停；environment 保护规则在 job 开始前卡住等人工批准
+      - name: approve-plan
+        run: echo "approved"
+        environment: production
+
+      # 对应 publish + teardown
+      - name: publish
+        run: |
+          notify ops-channel "$(cat draft.json)"
+          curl -sf -X DELETE "$OPS_BROKER/sandboxes/$(jq -r .sandbox_id sandbox.json)" || true
+
+# 缺什么：步骤级重试（无）、暂停/恢复（无，只能重跑整个 job）、DAG（只有 job 级 needs）、类型化输出（无）
