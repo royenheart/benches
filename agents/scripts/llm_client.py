@@ -1,21 +1,27 @@
-"""Shared LLM client for agents/ — reads config from agents/.env, uses OpenAI-compatible API.
+"""Shared LLM client for agents/ — reads config from agents/.env, OpenAI-compatible API.
 
-DeepSeek V4 API: https://api-docs.deepseek.com/zh-cn/
-- base_url: https://api.deepseek.com (no /v1 suffix)
-- Models: deepseek-v4-flash (fast), deepseek-v4-pro (powerful)
-- Thinking mode: extra_body={"thinking": {"type": "enabled"}}
+DeepSeek API: https://api-docs.deepseek.com/zh-cn/
+- base_url: https://api.deepseek.com (no /v1 suffix required)
+- Two endpoint styles (switch with DEEPSEEK_API in .env or chat(..., api=...)):
+    "chat"      — /chat/completions (OpenAI Chat Completions; default)
+    "responses" — /responses (OpenAI Responses API)
+- Models: deepseek-flash (= deepseek-v4-flash alias), deepseek-v4-pro
+- V4.1 unified mode: reasoning runs by default and consumes max_tokens FIRST;
+  small budgets can return empty content (llm_client auto-retries with a bigger one).
 
 Usage:
     from scripts.llm_client import get_client, chat
 
     client = get_client()
-    response = chat(client, "What is an AI agent?", model="deepseek-v4-flash")
-    print(response)
+    print(chat(client, "What is an AI agent?"))
+    print(chat(client, "...", api="responses"))               # Responses endpoint
+    print(chat(client, "...", show_reasoning=True))           # stream + collapsible reasoning
 """
 
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 
@@ -47,7 +53,8 @@ def get_config() -> dict:
             "DEEPSEEK_BASE_URL", env.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
         ),
         "api_key": os.environ.get("DEEPSEEK_API_KEY", env.get("DEEPSEEK_API_KEY", "")),
-        "model": os.environ.get("DEEPSEEK_MODEL", env.get("DEEPSEEK_MODEL", "deepseek-v4-flash")),
+        "api": os.environ.get("DEEPSEEK_API", env.get("DEEPSEEK_API", "chat")),
+        "model": os.environ.get("DEEPSEEK_MODEL", env.get("DEEPSEEK_MODEL", "deepseek-flash")),
         "max_tokens": int(
             os.environ.get("DEEPSEEK_MAX_TOKENS", env.get("DEEPSEEK_MAX_TOKENS", "4096"))
         ),
@@ -78,6 +85,96 @@ def get_client():
         return None
 
 
+# --- internals ---------------------------------------------------------------
+
+
+def _in_ipython() -> bool:
+    try:
+        return get_ipython() is not None  # noqa: F821
+    except NameError:
+        return False
+
+
+def _display_reasoning(reasoning: str, answer: str) -> None:
+    """Render reasoning collapsibly in Jupyter (<details>), dimmed in terminal."""
+    if not reasoning:
+        return
+    if _in_ipython():
+        import html
+
+        from IPython.display import HTML, display
+
+        display(
+            HTML(
+                "<details style='border:1px solid #ccc;border-radius:6px;padding:6px 10px;margin:6px 0'>"
+                "<summary>💭 思考过程（点击展开/收起）</summary>"
+                f"<pre style='white-space:pre-wrap;color:#666;margin:6px 0 0'>{html.escape(reasoning)}</pre>"
+                "</details>"
+            )
+        )
+    else:
+        dim, reset = ("\033[2m", "\033[0m") if sys.stdout.isatty() else ("", "")
+        print(f"{dim}💭 {reasoning}{reset}")
+
+
+def _reasoning_tokens_of(response) -> int:
+    details = getattr(getattr(response, "usage", None), "completion_tokens_details", None)
+    if details is None:
+        out_details = getattr(getattr(response, "usage", None), "output_tokens_details", None)
+        return getattr(out_details, "reasoning_tokens", 0) or 0
+    return getattr(details, "reasoning_tokens", 0) or 0
+
+
+def _responses_text_and_reasoning(resp) -> tuple[str, str]:
+    """Extract (answer, reasoning) from an OpenAI-Responses-style payload."""
+    texts: list[str] = []
+    reasonings: list[str] = []
+    for item in getattr(resp, "output", None) or []:
+        item_type = getattr(item, "type", "")
+        if item_type == "message":
+            for block in getattr(item, "content", None) or []:
+                t = getattr(block, "text", None)
+                if t:
+                    texts.append(t)
+        elif item_type == "reasoning":
+            for key in ("content", "summary"):
+                for block in getattr(item, key, None) or []:
+                    t = getattr(block, "text", None)
+                    if t:
+                        reasonings.append(t)
+    return "".join(texts), "\n".join(reasonings)
+
+
+def _chat_responses(client, config, prompt, *, model, system, max_tokens, show_reasoning):
+    kwargs = dict(
+        model=model or config["model"],
+        instructions=system,
+        input=prompt,
+        max_output_tokens=max_tokens if max_tokens is not None else config["max_tokens"],
+    )
+    resp = client.responses.create(**kwargs)
+    text, reasoning = _responses_text_and_reasoning(resp)
+
+    if not text:
+        new_budget = max(4096, kwargs["max_output_tokens"] * 4)
+        print(
+            f"[llm_client] empty content (reasoning consumed budget); retrying with max_output_tokens={new_budget}",
+            file=sys.stderr,
+        )
+        kwargs["max_output_tokens"] = new_budget
+        resp = client.responses.create(**kwargs)
+        text, reasoning = _responses_text_and_reasoning(resp)
+
+    if show_reasoning:
+        _display_reasoning(reasoning, text)
+    if not text:
+        return f"[API Error: empty content from responses api; increase max_tokens]"
+    return text
+
+
+# --- public API ---------------------------------------------------------------
+
+
 def chat(
     client,
     prompt: str,
@@ -89,29 +186,50 @@ def chat(
     thinking: bool = False,
     reasoning_effort: str | None = None,
     stream: bool = False,
+    api: str | None = None,
+    show_reasoning: bool = False,
 ) -> str:
-    """Send a chat completion request. Falls back to toy response if client is None.
+    """Send a chat request. Falls back to toy response if client is None.
 
     Args:
         client: OpenAI client from get_client(), or None for toy mode.
         prompt: User message.
         model: Model name (default: DEEPSEEK_MODEL from config).
         system: System prompt.
-        max_tokens: Max tokens to generate.
+        max_tokens: Max tokens to generate (reasoning tokens count first on V4.1).
         temperature: Sampling temperature.
-        thinking: Enable DeepSeek thinking mode (shows reasoning chain).
+        thinking: Enable DeepSeek thinking mode (extra_body={"thinking": ...}).
         reasoning_effort: "low", "medium", or "high" (requires thinking=True).
-        stream: If True, print tokens as they arrive.
+        stream: Print content tokens as they arrive.
+        api: "chat" (default, /chat/completions) or "responses" (/responses).
+        show_reasoning: Surface the model's reasoning — live-streamed (dimmed) in
+            terminal, or wrapped in a collapsible <details> block in Jupyter.
 
     Returns:
-        The assistant's response text.
+        The assistant's response text. Errors print to stderr AND return
+        "[API Error: ...]" (callers can check startswith("[API Error")).
     """
     config = get_config()
 
     if client is None:
         return _toy_response(prompt)
 
+    api = api or config["api"]
+    if api not in ("chat", "responses"):
+        return f"[API Error: unknown api {api!r}; expected 'chat' or 'responses']"
+
     try:
+        if api == "responses":
+            return _chat_responses(
+                client,
+                config,
+                prompt,
+                model=model,
+                system=system,
+                max_tokens=max_tokens,
+                show_reasoning=show_reasoning,
+            )
+
         kwargs: dict = {
             "model": model or config["model"],
             "messages": [
@@ -120,7 +238,7 @@ def chat(
             ],
             "max_tokens": max_tokens if max_tokens is not None else config["max_tokens"],
             "temperature": temperature if temperature is not None else config["temperature"],
-            "stream": stream,
+            "stream": stream or show_reasoning,
         }
 
         # Thinking mode (DeepSeek V4 specific)
@@ -130,20 +248,58 @@ def chat(
             if effort:
                 kwargs["reasoning_effort"] = effort
 
-        if stream:
-            response = client.chat.completions.create(**kwargs)
-            collected = []
+        response = client.chat.completions.create(**kwargs)
+
+        if kwargs["stream"]:
+            collected: list[str] = []
+            reasoning_parts: list[str] = []
+            dim, reset = ("\033[2m", "\033[0m") if sys.stdout.isatty() else ("", "")
             for chunk in response:
-                if chunk.choices and chunk.choices[0].delta.content:
-                    token = chunk.choices[0].delta.content
-                    print(token, end="", flush=True)
-                    collected.append(token)
+                if not chunk.choices:
+                    continue
+                delta = chunk.choices[0].delta
+                reasoning_delta = getattr(delta, "reasoning_content", None)
+                if reasoning_delta:
+                    if show_reasoning:
+                        print(f"{dim}{reasoning_delta}{reset}", end="", flush=True)
+                    reasoning_parts.append(reasoning_delta)
+                if delta.content:
+                    print(delta.content, end="", flush=True)
+                    collected.append(delta.content)
             print()
-            return "".join(collected)
-        else:
+            answer = "".join(collected)
+            if show_reasoning:
+                _display_reasoning("".join(reasoning_parts), answer)
+            return answer
+
+        choice = response.choices[0]
+        text = choice.message.content or ""
+        reasoning = getattr(choice.message, "reasoning_content", None) or ""
+        reasoning_tokens = _reasoning_tokens_of(response)
+        if not text and reasoning_tokens:
+            new_budget = max(4096, (max_tokens or config["max_tokens"]) * 4)
+            print(
+                f"[llm_client] empty content (reasoning_tokens={reasoning_tokens}); retrying with max_tokens={new_budget}",
+                file=sys.stderr,
+            )
+            kwargs["stream"] = False
+            kwargs["max_tokens"] = new_budget
             response = client.chat.completions.create(**kwargs)
-            return response.choices[0].message.content or ""
+            choice = response.choices[0]
+            text = choice.message.content or ""
+            reasoning = reasoning or getattr(choice.message, "reasoning_content", None) or ""
+        if show_reasoning:
+            _display_reasoning(reasoning, text)
+        if not text:
+            message = (
+                f"[API Error: empty content (finish_reason={choice.finish_reason}, "
+                f"reasoning_tokens={reasoning_tokens}); increase max_tokens]"
+            )
+            print(message, file=sys.stderr)
+            return message
+        return text
     except Exception as e:
+        print(f"[llm_client] API error: {e}", file=sys.stderr)
         return f"[API Error: {e}]"
 
 
@@ -183,12 +339,16 @@ def chat_with_tools(
 
     trace: list[dict] = []
     for _ in range(max_turns):
-        response = client.chat.completions.create(
-            model=model or config["model"],
-            messages=messages,
-            tools=tools,
-            max_tokens=config["max_tokens"],
-        )
+        try:
+            response = client.chat.completions.create(
+                model=model or config["model"],
+                messages=messages,
+                tools=tools,
+                max_tokens=config["max_tokens"],
+            )
+        except Exception as e:
+            print(f"[llm_client] API error: {e}", file=sys.stderr)
+            return f"[API Error: {e}]", trace
         msg = response.choices[0].message
         messages.append(msg.model_dump(exclude_none=True))
 

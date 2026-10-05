@@ -18,6 +18,14 @@ agents/memory/
 │   ├── 00_memory_types.ipynb
 │   ├── 01_rag_retrieval.ipynb
 │   └── 02_episodic_reflexion.ipynb
+├── papers/                    # 论文精读层：5 份笔记、41 篇文献（arXiv 原文核对）
+│   ├── README.md              # 精读导览与阅读顺序
+│   ├── 01_agentic_memory_foundations.md
+│   ├── 02_shared_and_org_memory.md
+│   ├── 03_decay_conflict_poisoning.md
+│   ├── 04_org_knowledge_and_adrs.md
+│   └── 05_cloud_memory_architecture.md
+├── images/                    # 记忆三平面架构图（gen_figures.py 可复现）
 └── scripts/
     ├── memory_store_demo.py
     └── reflexion_demo.py
@@ -68,6 +76,7 @@ jupyter notebook agents/memory/notebooks
 
 ## 资料入口
 
+- 论文精读（41 篇文献的原文核对笔记，含证据等级标注）：[`papers/README.md`](papers/README.md) — 单 agent 奠基 → 共享与组织记忆 → 腐化/冲突/投毒 → 组织知识与 ADR → 云端架构
 - Reflexion: [arXiv:2303.11366](https://arxiv.org/abs/2303.11366)
 - Generative Agents: [arXiv:2304.03442](https://arxiv.org/abs/2304.03442)
 - MemGPT / Letta: [letta.com](https://letta.com)

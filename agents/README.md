@@ -1,83 +1,83 @@
 # Agent 学习专题
 
-从零开始掌握 AI Agent 开发与工程的完整学习路径。覆盖 Agent 基础范式、规划与搜索、记忆系统、多 Agent 协作、MCP 协议、框架选型、评估、安全、生产化与前沿方向的渐进式课程。
+从零开始掌握 AI Agent 开发与工程的完整学习路径。章节按**业界 Agent 系统架构分层**组织：自底向上从模型接口走到应用形态，每一层解决一类工程问题，层间通过协议与契约连接。
 
-每个子目录是一个独立专题，包含 notebooks、scripts 和 README，遵循与 `accels/` 统一的目录约定。
+每个子目录是一个独立专题，包含 notebooks、scripts 和 README，遵循统一的目录约定。
 
-## 学习路线
+## 架构分层地图
 
 ```text
-Phase 1 — 基础               Phase 2 — 工程               Phase 3 — 实战
-───────────────────────────────────────────────────────────────────────────
-paradigms/ ─────────────────> mcp/ ──────────────────> safety/
-   Agent 是什么?                 MCP 协议与 Tool Server       OWASP 威胁建模
-   ReAct 循环                    资源与 Prompt 管理             Guardrails 接入
-   Plan-Act 模式                                            Prompt Injection 防御
-   Tool Use / Function Calling
-
-planning/ ──────────────────> multi-agent/ ────────────> production/
-   任务分解                      角色分工                      可观测性
-   Tree of Thoughts              Planner-Worker               部署模式
-   搜索与回溯                    Debate & Critique            成本管理
-                                 投票与共识
-
-memory/ ────────────────────> evaluation/ ──────────────> frontiers/
-   短期/长期记忆                  LLM-as-Judge                 Coding Agents
-   RAG 检索增强                  SWE-bench 等基准              Computer Use
-   情节记忆与反思                  轨迹评估                      Browser Agents
-
-                               frameworks/ ──────────────>
-                                 LangGraph / OpenAI SDK
-                                 CrewAI / AutoGen / ADK
-                                 框架选型决策树
-
-context-engineering/          protocols/                   deep-research/
-   Token 预算与测量              A2A 协议                     Thinking 模式
-   Compaction 与摘要            AG-UI 与 HITL               Deep Research 模式
-   上下文隔离与缓存              MCP+A2A 组合                 研究报告评估
-
-agent-skills/
-   Progressive Disclosure
-   Harness 设计（subagents/hooks）
-   自建 Skill 系统
+┌─ L0 模型接口 ──────────────────────────────────────────────
+│  context-engineering/ 上下文工程：token 预算 / compaction / 缓存
+├─ L1 Agent 运行时（单个 agent 的本体）────────────────────────
+│  agent-runtime/       循环与工具契约 / Skills / Harness（运行时基座）
+│  planning/            规划与搜索：任务分解 / ToT / ReWOO
+│  memory/              记忆系统：工作/短期/长期 / RAG / Reflexion
+├─ L2 连接与协议 ────────────────────────────────────────────
+│  protocols/           连接层协议族：MCP(↔工具) / A2A(↔agent) / ACP(↔编辑器) / AG-UI(↔UI)
+├─ L3 编排与协作（控制面）────────────────────────────────────
+│  orchestration/       协作模式 / 框架风格 / 状态机形态 / 工作流引擎 / 统一 YAML / 审批 / Temporal
+├─ L4 工程化与生产 ──────────────────────────────────────────
+│  evaluation/          评估：LLM-as-Judge / Benchmark / 轨迹
+│  safety/              安全：OWASP / Prompt Injection / Guardrails
+│  production/          生产化：Tracing / 部署模式 / 成本
+├─ L5 应用形态与前沿 ────────────────────────────────────────
+│  frontiers/           Coding Agents / Computer Use / Browser Agents
+│  deep-research/       Thinking 模式 / 研究循环 / 报告评估
+└─ 预留：执行环境层（沙箱隔离 / 浏览器 / computer use ↔ cloud-agent L1）
 ```
+
+分层依据与云侧架构一致（对照 MaintainAll `docs/cloud-agent-design.md`：其 "Layer 3: agent orchestration & control plane" 即本图的 L3，协作拓扑与调度引擎同层）。同一概念只在唯一一层有所有者——四种连接协议统一归 protocols，协作模式与状态机形态归 orchestration，循环本体与工具契约归 agent-runtime，DAG 的"规划"义归 planning、"执行"义归 orchestration。
 
 ## 专题列表
 
-### Phase 1 — 基础范式
+### L0 模型接口
 
 | # | 专题 | 目录 | 核心内容 |
 |---|------|------|----------|
-| 1 | Agent 范式从零到一 | `paradigms/` | Agent 心智模型、ReAct 循环、Plan-Act、Tool Use、Function Calling |
-| 2 | 规划与搜索 | `planning/` | 任务分解、DAG 依赖、Tree of Thoughts、搜索策略、ReWOO |
-| 3 | 记忆系统 | `memory/` | 工作记忆、长期记忆、RAG、情节反射、Reflexion 模式 |
+| 1 | Context Engineering | `context-engineering/` | Token 预算、Compaction、上下文隔离、Prompt Caching |
 
-### Phase 2 — 工程能力
+### L1 Agent 运行时
 
 | # | 专题 | 目录 | 核心内容 |
 |---|------|------|----------|
-| 4 | MCP 协议与实践 | `mcp/` | MCP 架构、Tool/Resource/Prompt 三层模型、自建 Server |
-| 5 | 多 Agent 协作 | `multi-agent/` | 角色分工、Planner-Worker、Critic-Solver、Debate、投票共识 |
-| 6 | Agent 框架对比 | `frameworks/` | LangGraph、OpenAI SDK、CrewAI、AutoGen、ADK、选型决策 |
+| 2 | Agent 运行时：循环、工具契约与 Harness | `agent-runtime/` | 最小循环与 ReAct、tool-call 合同、Progressive Disclosure、Claude Code 式 Harness、自建 Skill 系统；附 toy→生产差距清单 |
+| 3 | 规划与搜索 | `planning/` | 任务分解、DAG 依赖、Tree of Thoughts、搜索策略、ReWOO |
+| 4 | 记忆系统 | `memory/` | 工作记忆、长期记忆、RAG、情节反射、Reflexion 模式；`papers/` 41 篇论文精读（奠基→共享组织→腐化投毒→ADR→云端架构，原文核对+证据等级标注） |
+
+### L2 连接与协议
+
+| # | 专题 | 目录 | 核心内容 |
+|---|------|------|----------|
+| 5 | Agent 连接与协议 | `protocols/` | 协议族全景：MCP（agent↔工具，实现深挖）、A2A v1 三种绑定、Zed ACP stdio、AG-UI 事件流、组合选型——从概念到线上字节 |
+
+### L3 编排与协作（控制面）
+
+| # | 专题 | 目录 | 核心内容 |
+|---|------|------|----------|
+| 6 | 编排与协作：控制面 | `orchestration/` | 角色分工/Planner-Worker/Debate（原 multi-agent/）、框架风格对比（原 frameworks/）、状态机形态、工作流引擎格局、统一 YAML、审批/HITL、Temporal、运行账本 |
+
+### L4 工程化与生产
+
+| # | 专题 | 目录 | 核心内容 |
+|---|------|------|----------|
 | 7 | Agent 评估 | `evaluation/` | LLM-as-Judge、SWE-bench、GAIA、轨迹评估、Benchmark 设计 |
-
-### Phase 3 — 实战与前沿
-
-| # | 专题 | 目录 | 核心内容 |
-|---|------|------|----------|
 | 8 | Agent 安全 | `safety/` | OWASP Top 10 for LLM、Prompt Injection、Guardrails、Sandboxing |
 | 9 | Agent 生产化 | `production/` | Observability、LangFuse/Phoenix/Tracing、部署模式、成本管理 |
+
+### L5 应用形态与前沿
+
+| # | 专题 | 目录 | 核心内容 |
+|---|------|------|----------|
 | 10 | Agent 前沿 | `frontiers/` | Coding Agents (SWE-agent)、Computer Use、Browser Agents、Agentic RAG |
-| 11 | Context Engineering | `context-engineering/` | Token 预算、Compaction、上下文隔离、Prompt Caching |
-| 12 | Agent 互操作协议 | `protocols/` | A2A、AG-UI、HITL 审批流、MCP+A2A 组合架构 |
-| 13 | Deep Research 与推理 | `deep-research/` | Thinking 模式、Test-time Compute、研究循环、报告评估 |
-| 14 | Agent Skills 与 Harness | `agent-skills/` | Progressive Disclosure、Subagents/Hooks、自建 Skill 系统 |
+| 11 | Deep Research 与推理 | `deep-research/` | Thinking 模式、Test-time Compute、研究循环、报告评估 |
 
 ### 相关专题
 
 | 专题 | 位置 | 说明 |
 |------|------|------|
 | Agent 训练与对齐 | `../accels/agent-rl/` | SFT→DPO→RLHF/GRPO + ReAct/Tool Use/RAG/Multi-Agent |
+| 技术全景图 | `LANDSCAPE.md` | 协议/评估/生产/支撑设施的技术选型地图（与本目录互补：LANDSCAPE 按技术族谱，本目录按架构分层） |
 
 ## 目录约定
 
@@ -101,13 +101,13 @@ agents/<topic-name>/
 
 ```bash
 # Toy 模式 — 零依赖，即开即用
-python agents/paradigms/scripts/react_loop_demo.py --scenario search --verbose
+python agents/agent-runtime/scripts/react_loop_demo.py --scenario search --verbose
 
 # API 模式 — 接入 DeepSeek 真实推理
 cp agents/.env.example agents/.env    # 编辑填入 DEEPSEEK_API_KEY
 uv sync --extra agents                # 安装 openai + python-dotenv
-python agents/paradigms/scripts/react_loop_demo.py --scenario search --use-api --verbose
-jupyter notebook agents/paradigms/notebooks
+python agents/agent-runtime/scripts/react_loop_demo.py --scenario search --use-api --verbose
+jupyter notebook agents/agent-runtime/notebooks
 ```
 
 所有 Toy 模式仅需 Python 标准库。`--use-api` 模式通过 `agents/.env` 读取配置，无需在代码中反复填写 API key。
